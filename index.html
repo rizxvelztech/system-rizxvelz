@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -29,13 +29,23 @@
       overflow-x: hidden;
     }
 
+    /* noise overlay seperti contoh */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+    }
+
     /* Custom Scrollbar - Indigo Theme */
     ::-webkit-scrollbar {
       width: 5px;
     }
     ::-webkit-scrollbar-track {
-      background: #1a1a2e;
-      border-radius: 99px;
+      background: transparent;
     }
     ::-webkit-scrollbar-thumb {
       background: #6366f1;
@@ -45,20 +55,66 @@
       background: #818cf8;
     }
 
-    /* Reveal Animation on Scroll */
+    /* Reveal on Scroll - SAMA PERSIS seperti contoh */
     .reveal {
       opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(26px);
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .reveal.in {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
-    .delay-1 { transition-delay: 0.1s; }
-    .delay-2 { transition-delay: 0.2s; }
-    .delay-3 { transition-delay: 0.3s; }
-    .delay-4 { transition-delay: 0.4s; }
+    .d1 { transition-delay: 0.08s; }
+    .d2 { transition-delay: 0.16s; }
+    .d3 { transition-delay: 0.24s; }
+    .d4 { transition-delay: 0.32s; }
+
+    /* Nav underline animation */
+    .nl {
+      position: relative;
+    }
+    .nl::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: currentColor;
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nl:hover::after {
+      width: 100%;
+    }
+
+    /* Shimmer button effect */
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.18);
+      transform: skewX(-20deg);
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .shimmer:hover::after {
+      left: 160%;
+    }
+
+    /* Card hover effect */
+    .card-h {
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.18s;
+    }
+    .card-h:hover {
+      transform: translateY(-4px);
+    }
 
     #particles {
       position: fixed;
@@ -175,11 +231,6 @@
     .plan-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-    }
-
-    .plan-card.featured {
-      background: rgba(70, 0, 120, 0.3);
-      border: 2px solid rgba(99, 102, 241, 0.5);
     }
 
     .plan-name {
@@ -440,17 +491,17 @@
     </div>
     <h1 class="hero-title">SYONX LIGHT</h1>
     <div class="nav-container">
-      <a href="#plans" class="nav-link">Plans</a>
-      <a href="#about" class="nav-link">About</a>
-      <a href="#contact" class="nav-link">Contact</a>
-      <a href="login.html" class="nav-link">Login</a>
+      <a href="#plans" class="nav-link nl">Plans</a>
+      <a href="#about" class="nav-link nl">About</a>
+      <a href="#contact" class="nav-link nl">Contact</a>
+      <a href="login.html" class="nav-link shimmer" style="background: rgba(99,102,241,0.2); border-radius: 20px;">Login</a>
     </div>
   </header>
 
   <main>
     <section class="section hero">
-      <div class="hero-subtitle reveal delay-1">Welcome to Syonx - Advanced System API Bug.</div>
-      <a href="#plans" class="btn reveal delay-2">
+      <div class="hero-subtitle reveal d1">Welcome to Syonx - Advanced System API Bug.</div>
+      <a href="#plans" class="btn reveal d2 shimmer">
         <i class="fas fa-crown"></i> View Membership Plans
       </a>
     </section>
@@ -458,7 +509,7 @@
     <section id="plans" class="section">
       <h2 class="section-title reveal">Membership Plans</h2>
       <div class="plans-container">
-        <div class="plan-card reveal delay-1">
+        <div class="plan-card card-h reveal d1">
           <h3 class="plan-name">Basic User</h3>
           <div class="plan-price">Rp 30.000 <span>/Lifetime</span></div>
           <ul class="plan-features">
@@ -466,10 +517,10 @@
             <li><i class="fas fa-check feature-icon"></i> Standard Support</li>
             <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
           </ul>
-          <a href="https://t.me/rizxxvelzexct?text=Mas%20Mau%20Buy%20Basic%20User" class="btn btn-outline">Select Plan</a>
+          <a href="https://t.me/rizxxvelzexct?text=Mas%20Mau%20Buy%20Basic%20User" class="btn btn-outline shimmer" target="_blank">Select Plan</a>
         </div>
 
-        <div class="plan-card reveal delay-2">
+        <div class="plan-card card-h reveal d2">
           <h3 class="plan-name">Reseller User</h3>
           <div class="plan-price">Rp 90.000 <span>/Lifetime</span></div>
           <ul class="plan-features">
@@ -478,10 +529,10 @@
             <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
             <li><i class="fas fa-check feature-icon"></i> Create Basic User</li>
           </ul>
-          <a href="https://t.me/rizxvelzexct?text=Mas%20Mau%20Buy%20Reseller%20User" class="btn btn-outline">Select Plan</a>
+          <a href="https://t.me/rizxvelzexct?text=Mas%20Mau%20Buy%20Reseller%20User" class="btn btn-outline shimmer" target="_blank">Select Plan</a>
         </div>
 
-        <div class="plan-card reveal delay-3">
+        <div class="plan-card card-h reveal d3">
           <h3 class="plan-name">Admin User</h3>
           <div class="plan-price">Rp 130.000 <span>/Lifetime</span></div>
           <ul class="plan-features">
@@ -490,7 +541,7 @@
             <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
             <li><i class="fas fa-check feature-icon"></i> Role Management System</li>
           </ul>
-          <a href="https://t.me/rizxvelzexct?text=Mas%20Buy%20Admin%20User" class="btn btn-outline">Select Plan</a>
+          <a href="https://t.me/rizxvelzexct?text=Mas%20Buy%20Admin%20User" class="btn btn-outline shimmer" target="_blank">Select Plan</a>
         </div>
       </div>
     </section>
@@ -498,11 +549,11 @@
     <section id="about" class="section">
       <h2 class="section-title reveal">About Syonx</h2>
       <div class="about-content">
-        <div class="about-text reveal delay-1">
+        <div class="about-text reveal d1">
           <p>Syonx is a sophisticated website for managing and exploring bugs in API systems. Built with the latest technology.</p>
           <p class="mt-3">Our website is designed for users of Exploit to WhatsApp Application.</p>
         </div>
-        <div class="reveal delay-2">
+        <div class="reveal d2">
           <ul class="about-features">
             <li><i class="fas fa-bug"></i> Advanced Bug Detection Algorithms</li>
             <li><i class="fas fa-shield-alt"></i> Real-time Vulnerability Scanning</li>
@@ -518,7 +569,7 @@
     <section id="contact" class="section">
       <h2 class="section-title reveal">Contact Owner</h2>
       <div class="contact-container">
-        <div class="contact-info reveal delay-1">
+        <div class="contact-info reveal d1">
           <div class="contact-item">
             <div class="contact-icon">
               <i class="fab fa-telegram"></i>
@@ -548,7 +599,7 @@
           </div>
         </div>
         
-        <form class="contact-form reveal delay-2" action="https://submit-form.com/L1CukDuye">
+        <form class="contact-form reveal d2" action="https://submit-form.com/L1CukDuye">
           <div class="form-group">
             <label for="name">Your Name</label>
             <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" required>
@@ -561,7 +612,7 @@
             <label for="message">Message</label>
             <textarea id="message" name="message" class="form-control" placeholder="Type your message here" required></textarea>
           </div>
-          <button type="submit" class="btn">Send Message</button>
+          <button type="submit" class="btn shimmer">Send Message</button>
         </form>
       </div>
     </section>
@@ -598,12 +649,12 @@
         });
       });
       
-      // Reveal animation on scroll
+      // REVEAL ANIMATION ON SCROLL - SAMA PERSIS seperti contoh portfolio
       const revealElements = document.querySelectorAll('.reveal');
       
       function checkReveal() {
         const windowHeight = window.innerHeight;
-        const revealPoint = 150;
+        const revealPoint = 100;
         
         revealElements.forEach(element => {
           const revealTop = element.getBoundingClientRect().top;
