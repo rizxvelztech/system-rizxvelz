@@ -1,308 +1,613 @@
 <!DOCTYPE html>
-<html lang="id" x-data="app()" :class="{'dark':dark}" class="scroll-smooth">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Syonx - Dashboard</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
-          colors: { 'primary': '#8b5cf6', 'primary-dark': '#7c3aed' }
-        }
+
+  <!-- Google Font & Icon -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: black;
+      font-family: 'Poppins', sans-serif;
+      color: #a5b4fc;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar - Indigo Theme */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #6366f1;
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #818cf8;
+    }
+
+    #particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.7);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .logo {
+      width: 80px;
+      filter: drop-shadow(0 0 10px #6366f1);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .nav-link {
+      color: #c7d2fe;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(99, 102, 241, 0.2);
+      text-shadow: 0 0 10px #818cf8;
+      color: #e0e7ff;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .section {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      backdrop-filter: blur(8px);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
+    }
+
+    .section-title {
+      font-size: 28px;
+      color: #c7d2fe;
+      text-shadow: 0 0 10px #6366f1;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero-title {
+      font-size: 36px;
+      color: #c7d2fe;
+      text-shadow: 0 0 10px #6366f1;
+      margin-bottom: 10px;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: #a5b4fc;
+      margin-bottom: 25px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .plans-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .plan-card {
+      background: rgba(35, 0, 60, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .plan-card.featured {
+      background: rgba(70, 0, 120, 0.3);
+      border: 2px solid rgba(99, 102, 241, 0.5);
+    }
+
+    .plan-name {
+      font-size: 22px;
+      color: #c7d2fe;
+      margin-bottom: 15px;
+    }
+
+    .plan-price {
+      font-size: 28px;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .plan-price span {
+      font-size: 16px;
+      color: #a5b4fc;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .plan-features li {
+      position: relative;
+      padding-left: 40px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      list-style: none;
+    }
+
+    .plan-features li i {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #818cf8;
+      font-size: 18px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn:hover {
+      background: #818cf8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #6366f1;
+      color: #a5b4fc;
+    }
+
+    .btn-outline:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: #e0e7ff;
+    }
+
+    .about-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .about-text {
+      line-height: 1.6;
+    }
+
+    .about-features {
+      list-style: none;
+    }
+
+    .about-features li {
+      margin: 15px 0;
+      padding-left: 42px;
+      position: relative;
+    }
+
+    .about-features li i {
+      color: #818cf8;
+      position: absolute;
+      left: 0;
+      top: 2px;
+      font-size: 15px;
+    }
+
+    .contact-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #818cf8;
+      font-size: 18px;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      text-align: left;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      color: #a5b4fc;
+    }
+
+    .form-control {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px;
+      padding: 12px 15px;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    footer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      border-top: 1px solid rgba(99, 102, 241, 0.2);
+      margin-top: 50px;
+    }
+
+    .footer-text {
+      font-size: 14px;
+      color: #6366f1;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      background: rgba(70, 0, 120, 0.9);
+      border: 1px solid #6366f1;
+      color: white;
+      z-index: 1000;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transform: translateX(100vw);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .fas, .fab, .far {
+      display: inline-block;
+      font-style: normal;
+      font-variant: normal;
+      text-rendering: auto;
+      line-height: 1;
+    }
+
+    .feature-icon {
+      font-size: 1.2em;
+      margin-right: 8px;
+      color: #818cf8;
+      width: 24px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 28px;
+      }
+      
+      .section {
+        padding: 20px;
+      }
+      
+      .nav-container {
+        flex-wrap: wrap;
+      }
+      
+      .about-content, .contact-container {
+        grid-template-columns: 1fr;
       }
     }
-  </script>
-  
-  <style>
-    *,*::before,*::after{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
-    h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif}
-    
-    ::-webkit-scrollbar{width:6px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#8b5cf6;border-radius:99px}
-    
-    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
-    .reveal.in{opacity:1;transform:none}
-    .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
-    
-    .nl{position:relative}
-    .nl::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:#8b5cf6;transition:width .25s ease}
-    .nl:hover::after,.nl.active::after{width:100%}
-    .nl.active{color:#8b5cf6;font-weight:500}
-    
-    .card-hover{transition:transform .25s,box-shadow .25s}
-    .card-hover:hover{transform:translateY(-5px);box-shadow:0 20px 25px -12px rgba(0,0,0,.15)}
-    
-    .btn-primary{background:#8b5cf6;color:white;transition:all .2s}
-    .btn-primary:hover{background:#7c3aed;transform:translateY(-2px)}
-    .btn-outline{border:1.5px solid #e5e7eb;transition:all .2s}
-    .dark .btn-outline{border-color:#374151}
-    .btn-outline:hover{border-color:#8b5cf6;background:#8b5cf6/10}
-    
-    [x-cloak]{display:none!important}
+    html, body {
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
   </style>
 </head>
-<body class="bg-black dark:bg-black text-purple-200 dark:text-purple-200">
-
-<!-- Navigation -->
-<header class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
-  :class="scrolled ? 'bg-black/90 backdrop-blur-md border-b border-purple-900/30' : ''">
-  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="#" class="font-display font-bold text-xl tracking-tight">
-      <span class="text-white">SYONX</span><span class="text-purple-400"> - LIGHT</span>
-    </a>
-    
-    <ul class="hidden md:flex items-center gap-8 text-sm">
-      <li><a href="#plans" class="nl text-purple-300 hover:text-white" :class="section==='plans'?'active text-white':''">Plans</a></li>
-      <li><a href="#about" class="nl text-purple-300 hover:text-white" :class="section==='about'?'active text-white':''">About</a></li>
-      <li><a href="#contact" class="nl text-purple-300 hover:text-white" :class="section==='contact'?'active text-white':''">Contact</a></li>
-      <li><a href="login.html" class="px-5 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition shadow-lg shadow-purple-600/30">Login</a></li>
-    </ul>
-    
-    <div class="flex items-center gap-3">
-      <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-full border border-purple-800 hover:bg-purple-900/30 transition">
-        <svg x-show="!dark" class="w-4 h-4 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        <svg x-show="dark" class="w-4 h-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
-      </button>
-      <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-purple-800">
-        <svg x-show="!mobileMenu" class="w-5 h-5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        <svg x-show="mobileMenu" class="w-5 h-5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-  </nav>
+<body>
+  <div id="particles"></div>
   
-  <!-- Mobile Menu -->
-  <div x-show="mobileMenu" x-cloak x-transition class="md:hidden bg-black border-t border-purple-900/50">
-    <ul class="flex flex-col px-6 py-5 gap-4">
-      <li><a href="#plans" @click="mobileMenu=false" class="block text-purple-300 hover:text-white">Plans</a></li>
-      <li><a href="#about" @click="mobileMenu=false" class="block text-purple-300 hover:text-white">About</a></li>
-      <li><a href="#contact" @click="mobileMenu=false" class="block text-purple-300 hover:text-white">Contact</a></li>
-      <li><a href="login.html" @click="mobileMenu=false" class="inline-block px-5 py-2 bg-purple-600 text-white rounded-lg text-center">Login</a></li>
-    </ul>
+  <div id="notification" class="notification">
+    <i class="fas fa-check-circle"></i> Pesan Anda telah terkirim! Kami akan membalas secepatnya.
   </div>
-</header>
 
-<main class="pt-20">
-  <!-- Hero Section -->
-  <section id="hero" class="relative min-h-[80vh] flex items-center">
-    <div class="absolute top-1/4 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none"></div>
-    
-    <div class="max-w-6xl mx-auto px-6 py-16 w-full">
-      <div class="text-center">
-        <div class="flex justify-center mb-6">
-          <img src="https://files.catbox.moe/sipqb2.png" alt="Logo" class="w-24 h-24 filter drop-shadow-lg">
-        </div>
-        <p class="reveal text-purple-400 font-semibold text-sm mb-3 tracking-wider">S Y O N X</p>
-        <h1 class="reveal d1 font-display font-bold text-5xl md:text-6xl lg:text-7xl mb-4 text-white">
-          SYONX - LIGHT
-        </h1>
-        <p class="reveal d2 text-purple-300 text-lg max-w-2xl mx-auto mb-10">
-          Gateway to System Endpoint API Bug
-        </p>
-        <div class="reveal d3 flex flex-wrap gap-4 justify-center">
-          <a href="login.html" class="btn-primary px-8 py-3.5 rounded-xl font-medium shadow-xl shadow-purple-600/30 transition-all">Get Started →</a>
-          <a href="#plans" class="btn-outline px-8 py-3.5 rounded-xl font-medium text-purple-300">View Plans</a>
-        </div>
-      </div>
+  <header>
+    <div class="logo-container">
+      <img src="https://files.catbox.moe/sipqb2.png" alt="Logo" class="logo">
     </div>
-  </section>
-
-  <!-- Plans Section -->
-  <section id="plans" class="py-20 bg-purple-950/20">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-14">
-        <p class="reveal text-purple-400 font-semibold text-sm mb-3">MEMBERSHIP</p>
-        <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-white">Membership Plans</h2>
-        <p class="reveal d2 text-purple-300 mt-4 max-w-2xl mx-auto">Choose the perfect plan for your needs</p>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Basic Plan -->
-        <div class="reveal d1 card-hover bg-purple-950/30 backdrop-blur-sm rounded-2xl p-8 border border-purple-800/50">
-          <div class="text-center">
-            <h3 class="font-display font-bold text-2xl text-white mb-2">Basic User</h3>
-            <div class="text-4xl font-bold text-purple-400 mb-2">Rp 30.000</div>
-            <p class="text-purple-300 text-sm mb-6">/Lifetime</p>
-            <ul class="space-y-3 text-left mb-8">
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Limited Requests Day</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Standard Support</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Web Panel Access</li>
-            </ul>
-            <a href="https://t.me/rizxvelzexct?text=Mas%20Mau%20Buy%20Basic%20User" target="_blank" class="block w-full py-3 rounded-xl border border-purple-600 text-purple-300 hover:bg-purple-600/20 hover:text-white transition text-center">Select Plan</a>
-          </div>
-        </div>
-        
-        <!-- Reseller Plan -->
-        <div class="reveal d2 card-hover bg-purple-900/40 backdrop-blur-sm rounded-2xl p-8 border-2 border-purple-500 shadow-xl shadow-purple-600/20">
-          <div class="text-center">
-            <span class="inline-block px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full mb-3">Popular</span>
-            <h3 class="font-display font-bold text-2xl text-white mb-2">Reseller User</h3>
-            <div class="text-4xl font-bold text-purple-400 mb-2">Rp 90.000</div>
-            <p class="text-purple-300 text-sm mb-6">/Lifetime</p>
-            <ul class="space-y-3 text-left mb-8">
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Increased Request Limits</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Priority Support</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Web Panel Access</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Create Basic User</li>
-            </ul>
-            <a href="https://t.me/rizxvelzexct?text=Mas%20Mau%20Buy%20Reseller%20User" target="_blank" class="block w-full py-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 transition text-center font-medium shadow-lg">Select Plan</a>
-          </div>
-        </div>
-        
-        <!-- Admin Plan -->
-        <div class="reveal d3 card-hover bg-purple-950/30 backdrop-blur-sm rounded-2xl p-8 border border-purple-800/50">
-          <div class="text-center">
-            <h3 class="font-display font-bold text-2xl text-white mb-2">Admin User</h3>
-            <div class="text-4xl font-bold text-purple-400 mb-2">Rp 130.000</div>
-            <p class="text-purple-300 text-sm mb-6">/Lifetime</p>
-            <ul class="space-y-3 text-left mb-8">
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Unlimited Request Limits</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>24/7 Priority Support</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Web Panel Access</li>
-              <li class="flex items-center gap-3 text-purple-200 text-sm"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Role Management System</li>
-            </ul>
-            <a href="https://t.me/rizxvelzexct?text=Mas%20Buy%20Admin%20User" target="_blank" class="block w-full py-3 rounded-xl border border-purple-600 text-purple-300 hover:bg-purple-600/20 hover:text-white transition text-center">Select Plan</a>
-          </div>
-        </div>
-      </div>
+    <h1 class="hero-title">SYONX LIGHT</h1>
+    <div class="nav-container">
+      <a href="#plans" class="nav-link">Plans</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#contact" class="nav-link">Contact</a>
+      <a href="login.html" class="nav-link">Login</a>
     </div>
-  </section>
+  </header>
 
-  <!-- About Section -->
-  <section id="about" class="py-20">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="reveal">
-          <p class="text-purple-400 font-semibold text-sm mb-3">ABOUT SYONX</p>
-          <h2 class="font-display font-bold text-4xl md:text-5xl text-white mb-6">About Syonx</h2>
-          <p class="text-purple-200 leading-relaxed mb-4">
-            Syonx is a sophisticated website for managing and exploring bugs in API systems. Built with the latest technology.
-          </p>
-          <p class="text-purple-200 leading-relaxed mb-6">
-            Our website is designed for users of Exploit to WhatsApp Application.
-          </p>
-          <ul class="space-y-3">
-            <li class="flex items-center gap-3 text-purple-200 text-sm"><div class="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>Advanced Bug Detection Algorithms</li>
-            <li class="flex items-center gap-3 text-purple-200 text-sm"><div class="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>Real-time Vulnerability Scanning</li>
-            <li class="flex items-center gap-3 text-purple-200 text-sm"><div class="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>High-performance API</li>
-            <li class="flex items-center gap-3 text-purple-200 text-sm"><div class="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>Support for Multiple Programming Languages</li>
-            <li class="flex items-center gap-3 text-purple-200 text-sm"><div class="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>Responsive Design for all Devices</li>
-            <li class="flex items-center gap-3 text-purple-200 text-sm"><div class="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>Cloud-based Infrastructure</li>
+  <main>
+    <section class="section hero">
+      <div class="hero-subtitle">Welcome to Syonx - Advanced System API Bug.</div>
+      <a href="#plans" class="btn">
+        <i class="fas fa-crown"></i> View Membership Plans
+      </a>
+    </section>
+
+    <section id="plans" class="section">
+      <h2 class="section-title">Membership Plans</h2>
+      <div class="plans-container">
+        <div class="plan-card">
+          <h3 class="plan-name">Basic User</h3>
+          <div class="plan-price">Rp 30.000 <span>/Lifetime</span></div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check feature-icon"></i> Limited Requests Day</li>
+            <li><i class="fas fa-check feature-icon"></i> Standard Support</li>
+            <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
+          </ul>
+          <a href="https://t.me/rizxxvelzexct?text=Mas%20Mau%20Buy%20Basic%20User" class="btn btn-outline">Select Plan</a>
+        </div>
+
+        <div class="plan-card">
+          <h3 class="plan-name">Reseller User</h3>
+          <div class="plan-price">Rp 90.000 <span>/Lifetime</span></div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check feature-icon"></i> Increased Request Limits</li>
+            <li><i class="fas fa-check feature-icon"></i> Priority Support</li>
+            <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
+            <li><i class="fas fa-check feature-icon"></i> Create Basic User</li>
+          </ul>
+          <a href="https://t.me/rizxvelzexct?text=Mas%20Mau%20Buy%20Reseller%20User" class="btn btn-outline">Select Plan</a>
+        </div>
+
+        <div class="plan-card">
+          <h3 class="plan-name">Admin User</h3>
+          <div class="plan-price">Rp 130.000 <span>/Lifetime</span></div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check feature-icon"></i> Unlimited Request Limits</li>
+            <li><i class="fas fa-check feature-icon"></i> 24/7 Priority Support</li>
+            <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
+            <li><i class="fas fa-check feature-icon"></i> Role Management System</li>
+          </ul>
+          <a href="https://t.me/rizxvelzexct?text=Mas%20Buy%20Admin%20User" class="btn btn-outline">Select Plan</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <h2 class="section-title">About Syonx</h2>
+      <div class="about-content">
+        <div class="about-text">
+          <p>Syonx is a sophisticated website for managing and exploring bugs in API systems. Built with the latest technology.</p>
+          <p>Our website is designed for users of Exploit to WhatsApp Application.</p>
+        </div>
+        <div>
+          <ul class="about-features">
+            <li><i class="fas fa-bug"></i> Advanced Bug Detection Algorithms</li>
+            <li><i class="fas fa-shield-alt"></i> Real-time Vulnerability Scanning</li>
+            <li><i class="fas fa-bolt"></i> High-performance API</li>
+            <li><i class="fas fa-code"></i> Support for Multiple Programming Languages</li>
+            <li><i class="fas fa-mobile-alt"></i> Responsive Design for all Devices</li>
+            <li><i class="fas fa-cloud"></i> Cloud-based Infrastructure</li>
           </ul>
         </div>
-        <div class="reveal d2 grid grid-cols-2 gap-4">
-          <div class="bg-purple-950/40 backdrop-blur-sm rounded-2xl p-6 text-center border border-purple-800/50">
-            <div class="text-3xl font-bold text-purple-400">100+</div>
-            <p class="text-sm text-purple-300">Active Users</p>
-          </div>
-          <div class="bg-purple-950/40 backdrop-blur-sm rounded-2xl p-6 text-center border border-purple-800/50">
-            <div class="text-3xl font-bold text-purple-400">24/7</div>
-            <p class="text-sm text-purple-300">Support</p>
-          </div>
-          <div class="bg-purple-950/40 backdrop-blur-sm rounded-2xl p-6 text-center border border-purple-800/50">
-            <div class="text-3xl font-bold text-purple-400">1000+</div>
-            <p class="text-sm text-purple-300">Daily Requests</p>
-          </div>
-          <div class="bg-purple-950/40 backdrop-blur-sm rounded-2xl p-6 text-center border border-purple-800/50">
-            <div class="text-3xl font-bold text-purple-400">99%</div>
-            <p class="text-sm text-purple-300">Uptime</p>
-          </div>
-        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Contact Section -->
-  <section id="contact" class="py-20 bg-purple-950/20">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-14">
-        <p class="reveal text-purple-400 font-semibold text-sm mb-3">CONTACT</p>
-        <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-white">Contact Owner</h2>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <div class="reveal d2 space-y-4">
-          <div class="flex items-center gap-4 p-4 bg-purple-950/30 backdrop-blur-sm rounded-xl border border-purple-800/50">
-            <div class="w-12 h-12 bg-purple-600/20 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-            <div><h3 class="font-semibold text-white">Telegram</h3><a href="https://t.me/rizxvelzexct" target="_blank" class="text-sm text-purple-300 hover:text-purple-400">@rizxvelzexct</a></div>
+    <section id="contact" class="section">
+      <h2 class="section-title">Contact Owner</h2>
+      <div class="contact-container">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fab fa-telegram"></i>
+            </div>
+            <div>
+              <h3>Telegram</h3>
+              <p>@rizxvelzexct</p>
+            </div>
           </div>
-          <div class="flex items-center gap-4 p-4 bg-purple-950/30 backdrop-blur-sm rounded-xl border border-purple-800/50">
-            <div class="w-12 h-12 bg-purple-600/20 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-            <div><h3 class="font-semibold text-white">Email</h3><a href="mailto:rizalabiskeriset@gmail.com" class="text-sm text-purple-300 hover:text-purple-400">rizalabiskeriset@gmail.com</a></div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div>
+              <h3>Email</h3>
+              <p>rizalabiskeriset@gmail.com</p>
+            </div>
           </div>
-          <div class="flex items-center gap-4 p-4 bg-purple-950/30 backdrop-blur-sm rounded-xl border border-purple-800/50">
-            <div class="w-12 h-12 bg-purple-600/20 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-            <div><h3 class="font-semibold text-white">Response Time</h3><p class="text-sm text-purple-300">Within 24 hours</p></div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div>
+              <h3>Response Time</h3>
+              <p>Within 24 hours</p>
+            </div>
           </div>
         </div>
         
-        <div class="reveal d3">
-          <form action="https://submit-form.com/L1CukDuye" method="POST" class="space-y-4">
-            <input type="text" name="name" placeholder="Your Name" class="w-full px-4 py-3 rounded-xl bg-purple-950/50 border border-purple-700 text-purple-200 placeholder-purple-500 focus:border-purple-500 focus:outline-none transition">
-            <input type="email" name="email" placeholder="Email Address" class="w-full px-4 py-3 rounded-xl bg-purple-950/50 border border-purple-700 text-purple-200 placeholder-purple-500 focus:border-purple-500 focus:outline-none transition">
-            <textarea name="message" rows="4" placeholder="Type your message here" class="w-full px-4 py-3 rounded-xl bg-purple-950/50 border border-purple-700 text-purple-200 placeholder-purple-500 focus:border-purple-500 focus:outline-none transition"></textarea>
-            <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition font-medium shadow-lg shadow-purple-600/30">Send Message</button>
-          </form>
-        </div>
+        <form class="contact-form" action="https://submit-form.com/L1CukDuye">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" class="form-control" placeholder="Type your message here" required></textarea>
+          </div>
+          <button type="submit" class="btn">Send Message</button>
+        </form>
       </div>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
 
-<footer class="border-t border-purple-900/30 py-8">
-  <div class="max-w-6xl mx-auto px-6 text-center">
-    <p class="text-sm text-purple-400">© 2024 RizxvelzExerc1st. All rights reserved.</p>
-  </div>
-</footer>
+  <footer>
+    <p class="footer-text">© 2024 RizxvelzExerc1st. All rights reserved.</p>
+  </footer>
 
-<script>
-function app() {
-  return {
-    dark: false,
-    mobileMenu: false,
-    scrolled: false,
-    section: 'hero',
-    
-    init() {
-      this.dark = localStorage.getItem('theme') === 'dark' ||
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
-      
-      window.addEventListener('scroll', () => {
-        this.scrolled = window.scrollY > 20;
-        this.updateSection();
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      particleground(document.getElementById('particles'), {
+        dotColor: '#a5b4fc',
+        lineColor: '#6366f1',
+        minSpeedX: 0.1,
+        maxSpeedX: 0.3,
+        minSpeedY: 0.1,
+        maxSpeedY: 0.3,
+        density: 10000,
+        particleRadius: 3,
       });
       
-      const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-      }, { threshold: 0.1 });
-      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-    },
-    
-    updateSection() {
-      const sections = ['plans', 'about', 'contact'];
-      for (const sec of sections) {
-        const el = document.getElementById(sec);
-        if (el && window.scrollY >= el.offsetTop - 150) {
-          this.section = sec;
-          return;
-        }
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+          });
+        });
+      });
+      
+      const form = document.querySelector('.contact-form');
+      const notification = document.getElementById('notification');
+      
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          notification.classList.add('show');
+          setTimeout(function () {
+            notification.classList.remove('show');
+          }, 5000);
+        });
       }
-      this.section = 'hero';
-    }
-  }
-}
-</script>
+    }, false);
+
+    document.addEventListener('touchstart', function(event) {
+      if (event.touches.length > 1) event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function(event) {
+      event.preventDefault();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey === true || e.metaKey === true) && 
+          (e.keyCode === 107 || e.keyCode === 109 || e.keyCode === 187 || e.keyCode === 189)) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) e.preventDefault();
+    }, { passive: false });
+  </script>
 </body>
 </html>
