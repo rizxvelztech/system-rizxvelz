@@ -114,10 +114,6 @@
     }
     .hamburger-item:hover { background: #2a004a; color: #fff; }
     
-    .usage-stats { margin: 15px 0; padding: 10px; background: rgba(99,102,241,0.1); border-radius: 10px; font-size: 13px; }
-    .progress-bar { height: 6px; background: #2a004a; border-radius: 3px; margin-top: 5px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #6366f1; border-radius: 3px; width: 0%; }
-    
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;
@@ -155,23 +151,17 @@
     </div>
 
     <div style="text-align: center;"><img src="https://files.catbox.moe/sipqb2.png" class="logo" alt="Logo"></div>
-    <div class="username" id="usernameDisplay">مرحباً, Loading...</div>
+    <div class="username" id="usernameDisplay">Hallo, Loading...</div>
     <div class="connected">Connected</div>
 
-    <input type="text" id="targetNumber" placeholder="Input target number. example: 628123456789">
+    <input type="text" id="targetNumber" placeholder="Input target number. example: 62xxx">
 
     <div class="dropdown" id="customDropdown">
       <div class="dropdown-toggle"><span id="selectedMode">— Select Mode —</span><i class="fas fa-chevron-down"></i></div>
       <div class="dropdown-menu">
-        <div class="dropdown-item" data-value="iosfc">📱 iOS Force Close</div>
-        <div class="dropdown-item" data-value="androdelay">🤖 Android Delay Attack</div>
-        <div class="dropdown-item" data-value="androdelay2">👻 Android Invisible Attack</div>
+        <div class="dropdown-item" data-value="iosfc">🍎 iOS ForceClose</div>
+        <div class="dropdown-item" data-value="androdelay2">👨‍💻 Android Invisible Attack</div>
       </div>
-    </div>
-
-    <div class="usage-stats" id="usageStats">
-      <span id="usageText">Loading usage data...</span>
-      <div class="progress-bar"><div class="progress-fill" id="usageProgress"></div></div>
     </div>
 
     <button class="execute-button" id="executeBtn" disabled><i class="fas fa-rocket"></i> Execute</button>
@@ -241,15 +231,13 @@
       const btn = document.getElementById("executeBtn");
       const targetValid = isValidNumber(document.getElementById("targetNumber").value);
       const hasMode = !!selectedMode;
-      const canExecute = currentUser && currentUser.remaining > 0;
       
       if (remaining > 0) {
         btn.disabled = true;
         btn.innerHTML = `<i class="fas fa-hourglass-half"></i> Cooldown: ${remaining}s`;
       } else {
-        btn.disabled = !(targetValid && hasMode && canExecute) || executing;
+        btn.disabled = !(targetValid && hasMode) || executing;
         if (!btn.disabled && !executing) btn.innerHTML = '<i class="fas fa-rocket"></i> Execute';
-        else if (currentUser && currentUser.remaining <= 0) btn.innerHTML = '<i class="fas fa-ban"></i> Limit Reached';
         else btn.innerHTML = '<i class="fas fa-rocket"></i> Execute';
       }
     }
@@ -269,23 +257,10 @@
         return null;
       }
       
-      const today = new Date().toISOString().split("T")[0];
-      const usageKey = `usage_${user.username}`;
-      let usageData = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
-      
-      if (usageData.date !== today) { usageData = { date: today, count: 0 }; localStorage.setItem(usageKey, JSON.stringify(usageData)); }
-      
-      const limit = DAILY_LIMITS[user.role] || 10;
-      const remaining = Math.max(0, limit - usageData.count);
-      
-      currentUser = { username: user.username, role: user.role, expired: user.expired, usedToday: usageData.count, dailyLimit: limit, remaining: remaining };
+      currentUser = { username: user.username, role: user.role, expired: user.expired };
       
       document.getElementById("usernameDisplay").innerHTML = `مرحباً, ${currentUser.username}`;
       document.getElementById("userInfoFooter").innerHTML = `<i class="fas fa-user"></i> ${currentUser.username} | <i class="fas fa-hourglass-half"></i> ${new Date(currentUser.expired).toLocaleDateString()}`;
-      
-      const percent = (currentUser.usedToday / currentUser.dailyLimit) * 100;
-      document.getElementById("usageText").innerHTML = `📊 Daily Usage: ${currentUser.usedToday}/${currentUser.dailyLimit}`;
-      document.getElementById("usageProgress").style.width = `${Math.min(100, percent)}%`;
       
       if (currentUser.role === "owner" || currentUser.role === "admin" || currentUser.role === "reseller") {
         document.getElementById("manageUserItem").style.display = "flex";
@@ -295,32 +270,12 @@
       return currentUser;
     }
     
-    function incrementUsage() {
-      const today = new Date().toISOString().split("T")[0];
-      const usageKey = `usage_${currentUser.username}`;
-      let usageData = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
-      if (usageData.date !== today) usageData = { date: today, count: 0 };
-      usageData.count++;
-      localStorage.setItem(usageKey, JSON.stringify(usageData));
-      
-      currentUser.usedToday = usageData.count;
-      currentUser.remaining = Math.max(0, currentUser.dailyLimit - usageData.count);
-      
-      const percent = (currentUser.usedToday / currentUser.dailyLimit) * 100;
-      document.getElementById("usageText").innerHTML = `📊 Daily Usage: ${currentUser.usedToday}/${currentUser.dailyLimit}`;
-      document.getElementById("usageProgress").style.width = `${Math.min(100, percent)}%`;
-      updateCooldownDisplay();
-    }
-    
     function executeAttack() {
       const target = document.getElementById("targetNumber").value.trim();
       
       if (!isValidNumber(target)) { showToast("Invalid number! Use format: 628123456789", "error"); return; }
       if (!selectedMode) { showToast("Select a mode first!", "error"); return; }
       if (getRemainingCooldown() > 0) { showToast(`Cooldown: ${getRemainingCooldown()}s`, "error"); return; }
-      if (currentUser.remaining <= 0 && currentUser.role !== "owner" && currentUser.role !== "admin") {
-        showToast("Daily limit reached!", "error"); return;
-      }
       
       executing = true;
       const btn = document.getElementById("executeBtn");
@@ -328,11 +283,10 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
       
       setTimeout(() => {
-        incrementUsage();
         startCooldown();
         executing = false;
         
-        const modeName = selectedMode === "iosfc" ? "iOS Force Close" : selectedMode === "androdelay" ? "Android Delay Attack" : "Android Invisible Attack";
+        const modeName = selectedMode === "iosfc" ? "iOS Force Close" : "Android Invisible Attack";
         
         showToast("✅ Attack executed successfully!", "success");
         showModal("✅ SUCCESS", `Target: ${target}\nMode: ${modeName}\nTime: ${new Date().toLocaleString("id-ID")}`);
