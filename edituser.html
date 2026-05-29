@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Edit User - Zero</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: #000;
+      background: #0a0a0a;
       color: #a5b4fc;
       display: flex;
       justify-content: center;
@@ -21,6 +21,19 @@
       padding: 20px;
       position: relative;
     }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(99,102,241,0.08), transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
     #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
     
     ::-webkit-scrollbar { width: 5px; }
@@ -28,36 +41,173 @@
     ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 99px; }
     
     .container {
-      position: relative; z-index: 2; background: rgba(0,0,0,0.7);
-      border: 1px solid #6366f1; border-radius: 20px; padding: 30px;
-      max-width: 500px; width: 100%; backdrop-filter: blur(10px);
+      position: relative; z-index: 2; background: rgba(10, 10, 20, 0.85);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 28px;
+      padding: 40px;
+      max-width: 520px;
+      width: 100%;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 25px 45px rgba(0,0,0,0.3), 0 0 30px rgba(99,102,241,0.1);
     }
-    h2 { text-align: center; color: #c7d2fe; margin-bottom: 20px; }
+    
+    h2 { 
+      text-align: center; 
+      color: #e0e7ff; 
+      margin-bottom: 28px;
+      font-size: 26px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    h2 i { color: #6366f1; font-size: 26px; }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #818cf8;
+      margin-bottom: 6px;
+    }
+    
+    .form-group label i {
+      margin-right: 8px;
+      width: 18px;
+    }
+    
     input, select {
-      width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px;
-      border: 1px solid #6366f1; background: #1a001a; color: white;
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
       font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      transition: all 0.3s ease;
     }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+    
+    input::placeholder {
+      color: #4a5568;
+    }
+    
+    .expired-info {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #c7d2fe;
+      margin-top: 5px;
+    }
+    
+    .expired-info i {
+      margin-right: 8px;
+      color: #f59e0b;
+    }
+    
     button {
-      width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1, #4f46e5);
-      color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;
-      font-family: 'Poppins', sans-serif; font-weight: bold;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    button:hover { transform: translateY(-2px); }
-    .back-btn { display: block; text-align: center; margin-top: 15px; color: #a5b4fc; text-decoration: none; }
-    .back-btn:hover { color: #c7d2fe; }
+    
+    button:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+    }
+    
+    .back-btn { 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center; 
+      margin-top: 20px; 
+      padding: 12px;
+      color: #a5b4fc; 
+      text-decoration: none;
+      border-radius: 12px;
+      background: rgba(99,102,241,0.1);
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+    .back-btn:hover { 
+      background: rgba(99,102,241,0.2);
+      transform: translateX(-4px);
+      color: #e0e7ff;
+    }
+    
+    .warning-text {
+      font-size: 12px;
+      color: #fbbf24;
+      margin-top: 5px;
+    }
+    
+    @media (max-width: 480px) {
+      .container { padding: 25px; }
+      h2 { font-size: 22px; }
+    }
   </style>
 </head>
 <body>
   <div id="particles"></div>
   <div class="container">
-    <h2><i class="fas fa-edit"></i> Edit User</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="text" id="password" placeholder="Password">
-    <input type="number" id="extend" placeholder="Extend (days)" value="0">
-    <select id="role"></select>
-    <button onclick="saveEdit()">Save Changes</button>
-    <a href="userlist.html" class="back-btn">← Back to User List</a>
+    <h2><i class="fas fa-user-edit"></i> Edit User</h2>
+    
+    <div class="form-group">
+      <label><i class="fas fa-user"></i> Username</label>
+      <input type="text" id="username" placeholder="Enter username">
+    </div>
+    
+    <div class="form-group">
+      <label><i class="fas fa-lock"></i> Password</label>
+      <input type="text" id="password" placeholder="Enter new password">
+    </div>
+    
+    <div class="form-group">
+      <label><i class="fas fa-calendar-plus"></i> Extend Expiry (days)</label>
+      <input type="number" id="extend" placeholder="Add days to extend" value="0">
+      <div class="warning-text"><i class="fas fa-info-circle"></i> Leave 0 if no extension needed</div>
+    </div>
+    
+    <div class="form-group">
+      <label><i class="fas fa-tag"></i> Role</label>
+      <select id="role"></select>
+    </div>
+    
+    <div class="expired-info" id="expiredInfo">
+      <i class="fas fa-hourglass-half"></i> Loading user data...
+    </div>
+    
+    <button onclick="saveEdit()"><i class="fas fa-save"></i> Save Changes</button>
+    <a href="userlist.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to User List</a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
@@ -77,6 +227,12 @@
     
     document.getElementById("username").value = targetUser.username;
     document.getElementById("password").value = targetUser.password;
+    
+    // Update expired info
+    const expiredDate = new Date(targetUser.expired);
+    const now = Date.now();
+    const daysRemaining = Math.ceil((targetUser.expired - now) / 86400000);
+    document.getElementById("expiredInfo").innerHTML = `<i class="fas fa-hourglass-half"></i> Current expiry: ${expiredDate.toLocaleString("id-ID")} | <strong>${daysRemaining > 0 ? daysRemaining + ' days remaining' : 'EXPIRED'}</strong>`;
     
     const roleSelect = document.getElementById("role");
     roleSelect.innerHTML = "";
@@ -100,6 +256,11 @@
       const extend = parseInt(document.getElementById("extend").value) || 0;
       const newRole = document.getElementById("role").value;
       
+      if (!username || !password) {
+        alert("Username and password cannot be empty!");
+        return;
+      }
+      
       const index = users.findIndex(u => u.username === oldUsername);
       if (index !== -1) {
         users[index].username = username;
@@ -113,7 +274,7 @@
         else if (currentUserRole === "admin" && (newRole === "user" || newRole === "reseller")) users[index].role = newRole;
         
         saveUsers(users);
-        alert("User updated!");
+        alert("✅ User updated successfully!");
         window.location.href = "userlist.html";
       }
     }
