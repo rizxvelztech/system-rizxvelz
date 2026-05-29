@@ -150,17 +150,17 @@
       </div>
     </div>
 
-    <div style="text-align: center;"><img src="https://files.catbox.moe/sipqb2.png" class="logo" alt="Logo"></div>
+    <div style="text-align: center;"><img src="https://e.top4top.io/p_3801v3fjf1.jpg" class="logo" alt="Logo"></div>
     <div class="username" id="usernameDisplay">Hallo, Loading...</div>
     <div class="connected">Connected</div>
 
     <input type="text" id="targetNumber" placeholder="Input target number. example: 62xxx">
 
     <div class="dropdown" id="customDropdown">
-      <div class="dropdown-toggle"><span id="selectedMode">— Select Mode —</span><i class="fas fa-chevron-down"></i></div>
+      <div class="dropdown-toggle"><span id="selectedMode">- Select mode</span><i class="fas fa-chevron-down"></i></div>
       <div class="dropdown-menu">
-        <div class="dropdown-item" data-value="iosfc">🍎 iOS ForceClose</div>
-        <div class="dropdown-item" data-value="androdelay2">👨‍💻 Android Invisible Attack</div>
+        <div class="dropdown-item" data-value="iosfc">Heavy Delay</div>
+        <div class="dropdown-item" data-value="androdelay2">Crash InVisible</div>
       </div>
     </div>
 
@@ -259,7 +259,7 @@
       
       currentUser = { username: user.username, role: user.role, expired: user.expired };
       
-      document.getElementById("usernameDisplay").innerHTML = `مرحباً, ${currentUser.username}`;
+      document.getElementById("usernameDisplay").innerHTML = `Hallo, ${currentUser.username}`;
       document.getElementById("userInfoFooter").innerHTML = `<i class="fas fa-user"></i> ${currentUser.username} | <i class="fas fa-hourglass-half"></i> ${new Date(currentUser.expired).toLocaleDateString()}`;
       
       if (currentUser.role === "owner" || currentUser.role === "admin" || currentUser.role === "reseller") {
