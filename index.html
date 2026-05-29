@@ -69,6 +69,7 @@
     .d2 { transition-delay: 0.16s; }
     .d3 { transition-delay: 0.24s; }
     .d4 { transition-delay: 0.32s; }
+    .d5 { transition-delay: 0.40s; }
 
     /* Nav underline animation */
     .nl {
@@ -231,6 +232,11 @@
     .plan-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .plan-card.featured {
+      background: rgba(70, 0, 120, 0.3);
+      border: 2px solid rgba(99, 102, 241, 0.5);
     }
 
     .plan-name {
@@ -509,6 +515,7 @@
     <section id="plans" class="section">
       <h2 class="section-title reveal">Membership Plans</h2>
       <div class="plans-container">
+        <!-- Basic User -->
         <div class="plan-card card-h reveal d1">
           <h3 class="plan-name">Basic User</h3>
           <div class="plan-price">Rp 30.000 <span>/Lifetime</span></div>
@@ -520,6 +527,7 @@
           <a href="https://t.me/rizxxvelzexct?text=Mas%20Mau%20Buy%20Basic%20User" class="btn btn-outline shimmer" target="_blank">Select Plan</a>
         </div>
 
+        <!-- Reseller User -->
         <div class="plan-card card-h reveal d2">
           <h3 class="plan-name">Reseller User</h3>
           <div class="plan-price">Rp 90.000 <span>/Lifetime</span></div>
@@ -532,6 +540,7 @@
           <a href="https://t.me/rizxvelzexct?text=Mas%20Mau%20Buy%20Reseller%20User" class="btn btn-outline shimmer" target="_blank">Select Plan</a>
         </div>
 
+        <!-- Admin User -->
         <div class="plan-card card-h reveal d3">
           <h3 class="plan-name">Admin User</h3>
           <div class="plan-price">Rp 130.000 <span>/Lifetime</span></div>
@@ -542,6 +551,24 @@
             <li><i class="fas fa-check feature-icon"></i> Role Management System</li>
           </ul>
           <a href="https://t.me/rizxvelzexct?text=Mas%20Buy%20Admin%20User" class="btn btn-outline shimmer" target="_blank">Select Plan</a>
+        </div>
+
+        <!-- Owner User (BARU) -->
+        <div class="plan-card card-h reveal d4 featured">
+          <div class="ribbon" style="position: absolute; top: -10px; right: 20px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+            <i class="fas fa-crown"></i> BEST DEAL
+          </div>
+          <h3 class="plan-name" style="margin-top: 10px;">Owner User</h3>
+          <div class="plan-price">Rp 150.000 <span>/Lifetime</span></div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check feature-icon"></i> Unlimited Request Limits</li>
+            <li><i class="fas fa-check feature-icon"></i> 24/7 Priority Support</li>
+            <li><i class="fas fa-check feature-icon"></i> Web Panel Access</li>
+            <li><i class="fas fa-check feature-icon"></i> Full Role Management</li>
+            <li><i class="fas fa-check feature-icon"></i> Create Admin & Reseller</li>
+            <li><i class="fas fa-check feature-icon"></i> Full Access All Features</li>
+          </ul>
+          <a href="https://t.me/rizxvelzexct?text=Mas%20Buy%20Owner%20User%20Rp%20150rb" class="btn shimmer" target="_blank">Select Plan →</a>
         </div>
       </div>
     </section>
