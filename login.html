@@ -30,16 +30,27 @@
       overflow: hidden;
     }
 
-    /* Custom Scrollbar - Indigo Theme */
+    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 5px;
     }
     ::-webkit-scrollbar-track {
-      background: transparent;
+      background: #1a1a2e;
     }
     ::-webkit-scrollbar-thumb {
       background: #6366f1;
       border-radius: 99px;
+    }
+
+    /* Reveal Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     #particles {
@@ -184,7 +195,6 @@
       color: #6366f1;
     }
 
-    /* Toast Notification Styles */
     .notification {
       position: fixed;
       top: 20px;
@@ -267,7 +277,7 @@
 <body>
   <div id="particles"></div>
   
-  <div class="login-container">
+  <div class="login-container reveal">
     <div class="logo-container">
       <img src="https://files.catbox.moe/sipqb2.png" alt="Logo" class="logo">
       <div class="title">SYONX - LIGHT</div>
@@ -337,33 +347,10 @@
       window.history.replaceState(null, null, window.location.href.split('?')[0]);
     }
     
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      const username = this.username.value;
-      const password = this.password.value;
-      
-      if (username === "demo" && password === "error") {
-        e.preventDefault();
-        showNotification("Username atau password salah", "error");
-      }
-    });
-  </script>
-  
-  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      particleground(document.getElementById('particles'), {
-        dotColor: '#a5b4fc',
-        lineColor: '#6366f1',
-        minSpeedX: 0.1,
-        maxSpeedX: 0.3,
-        minSpeedY: 0.1,
-        maxSpeedY: 0.3,
-        density: 10000,
-        particleRadius: 3,
-      });
-    }, false);
-
+    // Reveal animation
+    document.querySelector('.login-container').classList.add('in');
+    
+    // Prevent zoom
     document.addEventListener('touchstart', function(event) {
       if (event.touches.length > 1) event.preventDefault();
     }, { passive: false });
@@ -382,6 +369,23 @@
     document.addEventListener('wheel', function(e) {
       if (e.ctrlKey) e.preventDefault();
     }, { passive: false });
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      particleground(document.getElementById('particles'), {
+        dotColor: '#a5b4fc',
+        lineColor: '#6366f1',
+        minSpeedX: 0.1,
+        maxSpeedX: 0.3,
+        minSpeedY: 0.1,
+        maxSpeedY: 0.3,
+        density: 10000,
+        particleRadius: 3,
+      });
+    }, false);
   </script>
 </body>
 </html>
