@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Deploy Website - Syonx</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #b19cd9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+    }
+    #particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+    }
+    .card {
+      position: relative;
+      z-index: 2;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      padding: 35px;
+      border-radius: 18px;
+      border: 1px solid #8a2be2;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+    .logo { width: 80px; margin-bottom: 20px; }
+    h2 { color: #b88aff; margin-bottom: 20px; }
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    input, textarea {
+      width: 100%; padding: 14px; border-radius: 10px;
+      background: #1a001a; border: 1px solid #8a2be2;
+      color: white; font-family: 'Poppins', sans-serif;
+    }
+    button {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #8a2be2, #4b0082);
+      color: white; font-weight: bold; border: none; border-radius: 10px;
+      cursor: pointer; margin-top: 10px;
+    }
+    .back-btn {
+      display: inline-block; margin-top: 20px; padding: 10px 20px;
+      background: #4b0082; color: white; text-decoration: none; border-radius: 8px;
+    }
+    #result { margin-top: 20px; padding: 15px; background: rgba(138,43,226,0.1); border-radius: 10px; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <div id="particles"></div>
+  <div class="card">
+    <img src="https://files.catbox.moe/sipqb2.png" class="logo" alt="Logo">
+    <h2>🚀 Deploy Website</h2>
+    <div class="input-group">
+      <input type="text" id="siteName" placeholder="Website Name (example: my-site)">
+    </div>
+    <div class="input-group">
+      <textarea id="htmlCode" rows="10" placeholder="Paste your HTML code here..."></textarea>
+    </div>
+    <button onclick="generateWebsite()"><i class="fas fa-code"></i> Generate & Download</button>
+    <div id="result"></div>
+    <a href="execution.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    function generateWebsite() {
+      const siteName = document.getElementById("siteName").value.trim();
+      let htmlCode = document.getElementById("htmlCode").value;
+      
+      if (!siteName) {
+        alert("Please enter a website name!");
+        return;
+      }
+      if (!htmlCode) {
+        htmlCode = `<!DOCTYPE html>
+<html>
+<head><title>${siteName}</title><meta charset="UTF-8"></head>
+<body style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;text-align:center;padding:50px;">
+<h1>${siteName}</h1>
+<p>Website deployed successfully!</p>
+</body>
+</html>`;
+      }
+      
+      const blob = new Blob([htmlCode], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${siteName}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      document.getElementById("result").innerHTML = `✅ Website "${siteName}" downloaded!<br>Open the downloaded file in your browser.`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      particleground(document.getElementById('particles'), {
+        dotColor: '#ffffff', lineColor: '#9932cc',
+        minSpeedX: 0.1, maxSpeedX: 0.3, minSpeedY: 0.1, maxSpeedY: 0.3,
+        density: 10000, particleRadius: 3,
+      });
+    });
+  </script>
+</body>
+</html>

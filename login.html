@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Syonx - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: black;
+      font-family: 'Poppins', sans-serif;
+      color: #b19cd9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+    }
+    .login-container {
+      position: relative;
+      z-index: 2;
+      background: rgba(138,43,226,0.05);
+      border: 1px solid rgba(138,43,226,0.2);
+      backdrop-filter: blur(8px);
+      padding: 40px 30px;
+      border-radius: 20px;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 0 25px rgba(138,43,226,0.3);
+      animation: fadeIn 0.8s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .logo { width: 80px; filter: drop-shadow(0 0 10px #8a2be2); margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
+    .title { font-size: 32px; color: #b88aff; text-shadow: 0 0 10px #b88aff; text-align: center; margin-bottom: 8px; }
+    .subtitle { font-size: 14px; color: #d6b3ff; text-align: center; margin-bottom: 30px; }
+    .form-group { position: relative; margin-bottom: 20px; }
+    .form-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8a2be2;
+    }
+    .form-control {
+      width: 100%;
+      padding: 14px 14px 14px 45px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(138,43,226,0.1);
+      color: white;
+      border: 1px solid rgba(138,43,226,0.3);
+    }
+    .form-control:focus { outline: none; border-color: #8a2be2; box-shadow: 0 0 10px rgba(138,43,226,0.3); }
+    .btn-login {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #8a2be2, #4b0082);
+      color: white; font-weight: 600; border: none; border-radius: 10px; cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-login:hover { background: #9932cc; transform: translateY(-2px); }
+    .btn-access {
+      display: block; text-align: center; background: rgba(138,43,226,0.2);
+      color: #b88aff; padding: 12px; border-radius: 10px; text-decoration: none;
+      margin-top: 15px;
+    }
+    .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #8a2be2; }
+    .toast {
+      position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+      border-radius: 8px; background: rgba(70,0,120,0.9); border: 1px solid #8a2be2;
+      color: white; z-index: 1000; transform: translateX(100vw); transition: transform 0.3s ease;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.error { background: rgba(120,0,0,0.9); border-color: #ff4444; }
+  </style>
+</head>
+<body>
+  <div id="particles"></div>
+  
+  <div class="login-container">
+    <img src="https://files.catbox.moe/sipqb2.png" class="logo" alt="Logo">
+    <div class="title">SYONX - LIGHT</div>
+    <div class="subtitle">Gateway to System Endpoint API Bug</div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="username" class="form-control" placeholder="Username" required />
+      </div>
+      <div class="form-group">
+        <i class="fas fa-key"></i>
+        <input type="password" id="password" class="form-control" placeholder="Password" required />
+      </div>
+      <button type="submit" class="btn-login"><i class="fas fa-lock"></i> LOGIN NOW</button>
+    </form>
+
+    <a class="btn-access" href="index.html"><i class="fas fa-crown"></i> VIEW PLANS & PRICING</a>
+    <div class="footer">© 2024 RizxvelzExerc1st. All rights reserved.</div>
+  </div>
+
+  <div id="toast" class="toast"><i class="fas fa-info-circle"></i> <span id="toastText"></span></div>
+
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // Default users data (disimpan di localStorage)
+    const DEFAULT_USERS = [
+      { username: "admin", password: "admin123", role: "owner", expired: Date.now() + 365 * 86400000, isLoggedIn: false },
+      { username: "demo", password: "demo123", role: "user", expired: Date.now() + 30 * 86400000, isLoggedIn: false }
+    ];
+
+    function initDatabase() {
+      if (!localStorage.getItem("users")) {
+        localStorage.setItem("users", JSON.stringify(DEFAULT_USERS));
+      }
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById("toast");
+      toast.querySelector("#toastText").textContent = message;
+      toast.className = "toast" + (isError ? " error" : "");
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      
+      initDatabase();
+      const users = JSON.parse(localStorage.getItem("users"));
+      const user = users.find(u => u.username === username && u.password === password);
+      
+      if (!user) {
+        showToast("Username atau password salah!", true);
+        return;
+      }
+      
+      if (user.expired && Date.now() > user.expired) {
+        showToast("Akun sudah kedaluwarsa!", true);
+        return;
+      }
+      
+      if (user.isLoggedIn && user.role !== "owner") {
+        showToast("User sedang login di device lain!", true);
+        return;
+      }
+      
+      // Set login status
+      user.isLoggedIn = true;
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("currentUser", JSON.stringify({
+        username: user.username,
+        role: user.role,
+        expired: user.expired
+      }));
+      localStorage.setItem("isLoggedIn", "true");
+      
+      showToast("Login berhasil! Mengarahkan...");
+      setTimeout(() => {
+        window.location.href = "execution.html";
+      }, 1000);
+    });
+    
+    // Check if already logged in
+    if (localStorage.getItem("isLoggedIn") === "true") {
+      window.location.href = "execution.html";
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      particleground(document.getElementById('particles'), {
+        dotColor: '#b19cd9', lineColor: '#8a2be2',
+        minSpeedX: 0.1, maxSpeedX: 0.3, minSpeedY: 0.1, maxSpeedY: 0.3,
+        density: 10000, particleRadius: 3,
+      });
+    });
+  </script>
+</body>
+</html>

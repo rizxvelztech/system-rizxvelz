@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>User Management - Syonx</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #b19cd9;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    #particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid #8a2be2;
+      border-radius: 20px;
+      padding: 30px;
+    }
+    h1 { text-align: center; color: #b88aff; margin-bottom: 30px; }
+    .table-container { overflow-x: auto; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #8a2be2; }
+    th { background: rgba(138,43,226,0.2); }
+    button {
+      padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer;
+      margin: 0 4px; font-family: 'Poppins', sans-serif;
+    }
+    .btn-delete { background: #ff4444; color: white; }
+    .btn-edit { background: #8a2be2; color: white; }
+    .btn-add {
+      background: #4CAF50; color: white; padding: 10px 20px;
+      margin-top: 10px;
+    }
+    .form-add {
+      margin-top: 30px; padding: 20px; background: rgba(138,43,226,0.1);
+      border-radius: 10px; display: none;
+    }
+    .form-add input, .form-add select {
+      padding: 10px; margin: 5px; border-radius: 6px;
+      border: 1px solid #8a2be2; background: #1a001a; color: white;
+    }
+    .back-btn {
+      display: inline-block; margin-top: 20px; padding: 10px 20px;
+      background: #4b0082; color: white; text-decoration: none; border-radius: 8px;
+    }
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
+      border-radius: 8px; background: #333; color: white; z-index: 1000;
+    }
+    @media (max-width: 600px) { th, td { padding: 8px; font-size: 13px; } }
+  </style>
+</head>
+<body>
+  <div id="particles"></div>
+  <div class="container">
+    <h1><i class="fas fa-users"></i> User Management</h1>
+    <div class="table-container">
+      <table id="userTable">
+        <thead><tr><th>Username</th><th>Role</th><th>Expired</th><th>Action</th></tr></thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+    <button onclick="toggleForm()" class="btn-add"><i class="fas fa-user-plus"></i> Add User</button>
+    <div id="addForm" class="form-add">
+      <h3>Add New User</h3>
+      <input type="text" id="newUsername" placeholder="Username">
+      <input type="text" id="newPassword" placeholder="Password">
+      <input type="number" id="newDurasi" placeholder="Days" value="30">
+      <select id="newRole"></select>
+      <button onclick="addUser()">Create</button>
+    </div>
+    <br><a href="execution.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    let currentUserRole = "";
+    const DAILY_LIMITS = { user: 10, reseller: 25, admin: 999, owner: 999 };
+    
+    function loadCurrentUser() {
+      const userStr = localStorage.getItem("currentUser");
+      if (!userStr) { window.location.href = "login.html"; return null; }
+      const user = JSON.parse(userStr);
+      currentUserRole = user.role;
+      return user;
+    }
+    
+    function getUsers() { return JSON.parse(localStorage.getItem("users") || "[]"); }
+    function saveUsers(users) { localStorage.setItem("users", JSON.stringify(users)); }
+    
+    function renderUserTable() {
+      const users = getUsers();
+      const currentUsername = JSON.parse(localStorage.getItem("currentUser") || "{}").username;
+      
+      let filtered = users;
+      if (currentUserRole === "reseller") filtered = users.filter(u => u.role === "user");
+      if (currentUserRole === "admin") filtered = users.filter(u => u.role !== "owner");
+      
+      const tbody = document.getElementById("userTableBody");
+      tbody.innerHTML = "";
+      
+      filtered.forEach(user => {
+        const isProtected = user.username === currentUsername ||
+          (currentUserRole === "reseller" && user.role !== "user") ||
+          (currentUserRole === "admin" && (user.role === "admin" || user.role === "owner"));
+        
+        const canEdit = currentUserRole === "owner" ||
+          (currentUserRole === "admin" && (user.role === "user" || user.role === "reseller")) ||
+          (currentUserRole === "reseller" && user.role === "user");
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = user.username;
+        row.insertCell(1).textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        row.insertCell(2).textContent = new Date(user.expired).toLocaleString("id-ID");
+        
+        const actionCell = row.insertCell(3);
+        if (!isProtected) {
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "Delete";
+          delBtn.className = "btn-delete";
+          delBtn.onclick = () => deleteUser(user.username);
+          actionCell.appendChild(delBtn);
+        }
+        if (canEdit && !isProtected) {
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.className = "btn-edit";
+          editBtn.onclick = () => editUser(user.username);
+          actionCell.appendChild(editBtn);
+        }
+      });
+    }
+    
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.backgroundColor = isError ? "#ff4444" : "#4CAF50";
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 3000);
+    }
+    
+    function toggleForm() {
+      const form = document.getElementById("addForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+      
+      const roleSelect = document.getElementById("newRole");
+      roleSelect.innerHTML = "";
+      let roles = [];
+      if (currentUserRole === "owner") roles = ["user", "reseller", "admin"];
+      else if (currentUserRole === "admin") roles = ["user", "reseller"];
+      else if (currentUserRole === "reseller") roles = ["user"];
+      
+      roles.forEach(role => {
+        const opt = document.createElement("option");
+        opt.value = role;
+        opt.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+        roleSelect.appendChild(opt);
+      });
+    }
+    
+    function addUser() {
+      const username = document.getElementById("newUsername").value.trim();
+      const password = document.getElementById("newPassword").value;
+      const durasi = parseInt(document.getElementById("newDurasi").value);
+      const role = document.getElementById("newRole").value;
+      
+      if (!username || !password) { showToast("Fill username & password!", true); return; }
+      
+      const users = getUsers();
+      if (users.find(u => u.username === username)) { showToast("Username exists!", true); return; }
+      
+      const expired = Date.now() + durasi * 86400000;
+      users.push({ username, password, expired, role, isLoggedIn: false });
+      saveUsers(users);
+      
+      showToast("User added!");
+      setTimeout(() => location.reload(), 1500);
+    }
+    
+    function deleteUser(username) {
+      if (!confirm(`Delete ${username}?`)) return;
+      const users = getUsers().filter(u => u.username !== username);
+      saveUsers(users);
+      showToast("User deleted!");
+      renderUserTable();
+    }
+    
+    function editUser(username) {
+      window.location.href = `edituser.html?username=${encodeURIComponent(username)}`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!loadCurrentUser()) return;
+      renderUserTable();
+      particleground(document.getElementById('particles'), {
+        dotColor: '#ffffff', lineColor: '#9932cc',
+        minSpeedX: 0.1, maxSpeedX: 0.3, minSpeedY: 0.1, maxSpeedY: 0.3,
+        density: 10000, particleRadius: 3,
+      });
+    });
+  </script>
+</body>
+</html>

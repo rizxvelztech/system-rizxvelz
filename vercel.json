@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/execution", "destination": "/execution.html" },
+    { "source": "/userlist", "destination": "/userlist.html" },
+    { "source": "/edituser", "destination": "/edituser.html" },
+    { "source": "/deploy", "destination": "/deploy.html" }
+  ]
+}
