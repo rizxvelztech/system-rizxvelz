@@ -1,335 +1,403 @@
 <!DOCTYPE html>
-<html lang="id" x-data="app()" :class="{'dark':dark}">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Syonx - Panel</title>
+  <title>Zero - Execution Panel</title>
   
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
-          colors: { 'primary': '#8b5cf6', 'primary-dark': '#7c3aed' }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   
   <style>
-    *,*::before,*::after{box-sizing:border-box}
-    body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
-    ::-webkit-scrollbar{width:5px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#8b5cf6;border-radius:99px}
-    .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;background:#8b5cf6;color:white;z-index:1000;transform:translateX(400px);transition:transform .3s}
-    .toast.show{transform:translateX(0)}
-    .toast.error{background:#ef4444}
-    .toast.success{background:#22c55e}
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;visibility:hidden;transition:all .3s}
-    .modal.show{opacity:1;visibility:visible}
-    .modal-content{background:#1a0a2e;border:1px solid #8b5cf6;border-radius:20px;padding:28px;max-width:400px;width:90%;text-align:center;transform:scale(0.9);transition:transform .3s}
-    .modal.show .modal-content{transform:scale(1)}
-    .modal-close{margin-top:16px;padding:8px 20px;background:#8b5cf6;border:none;border-radius:10px;color:white;cursor:pointer}
-    [x-cloak]{display:none!important}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #a5b4fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+    }
+    #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 99px; }
+    
+    .card {
+      position: relative; z-index: 2; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+      padding: 35px; border-radius: 18px; border: 1px solid #6366f1;
+      box-shadow: 0 0 30px rgba(99,102,241,0.4); width: 95%; max-width: 600px;
+      text-align: center; animation: fade .8s ease;
+    }
+    @keyframes fade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .logo { width: 80px; filter: drop-shadow(0 0 10px #6366f1); margin-bottom: 15px; }
+    .username { font-size: 22px; color: #c7d2fe; font-weight: bold; margin-bottom: 6px; }
+    .connected {
+      font-size: 14px; color: #6366f1; margin-bottom: 16px; display: flex;
+      justify-content: center; align-items: center; text-transform: uppercase;
+    }
+    .connected::before {
+      content: ''; width: 10px; height: 10px; background: #22c55e;
+      border-radius: 50%; display: inline-block; margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
+    
+    input[type="text"] {
+      width: 100%; padding: 14px; border-radius: 10px; background: #1a001a;
+      border: 1px solid #6366f1; color: #a5b4fc; margin-bottom: 16px;
+      font-family: 'Poppins', sans-serif;
+    }
+    input:focus { outline: none; border-color: #818cf8; box-shadow: 0 0 10px rgba(99,102,241,0.3); }
+    
+    .dropdown { position: relative; width: 100%; margin-top: 12px; }
+    .dropdown-toggle {
+      width: 100%; background: linear-gradient(145deg, #1a001a, #2a004a);
+      border: 2px solid #6366f1; border-radius: 12px; padding: 14px 18px;
+      font-size: 15px; font-weight: 600; color: #a5b4fc; text-align: left;
+      cursor: pointer; display: flex; justify-content: space-between; transition: 0.3s;
+    }
+    .dropdown-toggle:hover { background: linear-gradient(145deg, #2a004a, #3a006a); box-shadow: 0 0 20px rgba(99,102,241,0.4); }
+    .dropdown-toggle i { transition: transform 0.3s; }
+    .dropdown.open .dropdown-toggle i { transform: rotate(180deg); }
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: rgba(26,0,26,0.95); border: 2px solid #6366f1; border-radius: 12px;
+      display: none; flex-direction: column; z-index: 999; overflow: hidden;
+    }
+    .dropdown.open .dropdown-menu { display: flex; }
+    .dropdown-item {
+      padding: 12px 16px; font-size: 14px; font-weight: 500; color: #a5b4fc;
+      cursor: pointer; transition: 0.25s;
+    }
+    .dropdown-item:hover { background: #2a004a; color: #fff; }
+    
+    .execute-button {
+      background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; padding: 14px;
+      width: 100%; border-radius: 10px; font-weight: bold; border: none; margin-top: 20px;
+      cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif; font-size: 16px;
+    }
+    .execute-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(99,102,241,0.4); }
+    .execute-button:disabled { background: #4b0082; cursor: not-allowed; opacity: 0.5; }
+    
+    .footer-action-container {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px;
+    }
+    .footer-button {
+      background: rgba(99,102,241,0.15); border: 1px solid #6366f1; border-radius: 8px;
+      padding: 8px 12px; font-size: 14px; color: #a5b4fc; display: flex; align-items: center; gap: 6px;
+      transition: all 0.3s ease; cursor: pointer;
+    }
+    .footer-button:hover { background: rgba(99,102,241,0.3); }
+    .footer-button a { color: #a5b4fc; text-decoration: none; }
+    
+    .hamburger-menu { position: absolute; top: 20px; right: 20px; z-index: 1000; cursor: pointer; }
+    .hamburger-icon { width: 30px; height: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+    .hamburger-icon span { display: block; height: 3px; width: 100%; background-color: #a5b4fc; border-radius: 3px; transition: all 0.3s ease; }
+    .hamburger-menu.active .hamburger-icon span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .hamburger-menu.active .hamburger-icon span:nth-child(2) { opacity: 0; }
+    .hamburger-menu.active .hamburger-icon span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+    .hamburger-dropdown {
+      position: absolute; top: 40px; right: 0; background: rgba(26,0,26,0.95);
+      border: 2px solid #6366f1; border-radius: 12px; display: none; flex-direction: column;
+      min-width: 180px; z-index: 999; overflow: hidden;
+    }
+    .hamburger-menu.active .hamburger-dropdown { display: flex; }
+    .hamburger-item {
+      padding: 12px 16px; font-size: 14px; color: #a5b4fc; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .hamburger-item:hover { background: #2a004a; color: #fff; }
+    
+    .usage-stats { margin: 15px 0; padding: 10px; background: rgba(99,102,241,0.1); border-radius: 10px; font-size: 13px; }
+    .progress-bar { height: 6px; background: #2a004a; border-radius: 3px; margin-top: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #6366f1; border-radius: 3px; width: 0%; }
+    
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: rgba(26,0,26,0.95); border: 2px solid #6366f1; border-radius: 18px;
+      padding: 30px; max-width: 400px; width: 90%; text-align: center;
+    }
+    .modal-close { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+    .toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #1a001a, #2a004a); border: 1px solid #6366f1;
+      border-radius: 10px; padding: 12px 24px; color: #a5b4fc; z-index: 9999;
+      transition: transform 0.3s ease;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: #22c55e; color: #22c55e; }
+    .toast.error { border-color: #ef4444; color: #ef4444; }
+    
+    @media (max-width: 480px) { .card { padding: 25px; } .username { font-size: 18px; } .footer-button { font-size: 12px; padding: 6px 10px; } }
+    html, body { touch-action: manipulation; width: 100%; height: 100%; }
   </style>
 </head>
-<body class="bg-black text-purple-200">
+<body>
+  <div id="particles"></div>
 
-<!-- Navigation -->
-<header class="fixed top-0 inset-x-0 z-50 bg-black/90 backdrop-blur-md border-b border-purple-900/30">
-  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="index.html" class="font-display font-bold text-xl tracking-tight">
-      <span class="text-white">SYONX</span><span class="text-purple-400"> - LIGHT</span>
-    </a>
-    
-    <div class="flex items-center gap-3">
-      <span class="text-sm text-purple-300 hidden md:inline" x-text="'👋 ' + username"></span>
-      <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-full border border-purple-800 hover:bg-purple-900/30">
-        <svg x-show="!dark" class="w-4 h-4 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        <svg x-show="dark" class="w-4 h-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
-      </button>
-      <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-purple-800">
-        <svg x-show="!mobileMenu" class="w-5 h-5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        <svg x-show="mobileMenu" class="w-5 h-5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+  <div class="card">
+    <div class="hamburger-menu" id="hamburgerMenu">
+      <div class="hamburger-icon"><span></span><span></span><span></span></div>
+      <div class="hamburger-dropdown">
+        <a href="#" class="hamburger-item" id="manageUserItem" style="display: none;"><i class="fas fa-users-cog"></i> Manage User</a>
+        <a href="index.html" class="hamburger-item"><i class="fas fa-home"></i> Home</a>
+        <a href="https://t.me/rizxvelzinfinity" target="_blank" class="hamburger-item"><i class="fab fa-telegram"></i> Developer</a>
+      </div>
     </div>
-  </nav>
-  
-  <!-- Mobile Menu -->
-  <div x-show="mobileMenu" x-cloak x-transition class="md:hidden bg-black border-t border-purple-900/50">
-    <ul class="flex flex-col px-6 py-4 gap-3">
-      <li><a href="userlist.html" x-show="showManageUser" class="block text-purple-300 py-2">👥 Manage User</a></li>
-      <li><a href="#" @click="logout" class="block text-red-400 py-2">🚪 Logout</a></li>
-    </ul>
-  </div>
-</header>
 
-<main class="pt-24 pb-12">
-  <div class="max-w-2xl mx-auto px-6">
-    <!-- User Info Card -->
-    <div class="bg-purple-950/30 backdrop-blur-md rounded-2xl border border-purple-700/50 p-6 mb-8">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <p class="text-sm text-purple-300">Connected</p>
-          </div>
-          <h2 class="font-display font-bold text-2xl text-white" x-text="'مرحباً, ' + username"></h2>
-          <p class="text-xs text-purple-400 mt-1">Role: <span x-text="role" class="text-purple-300"></span></p>
-        </div>
-        <div class="text-right">
-          <p class="text-sm text-purple-300">Expired</p>
-          <p class="font-medium text-white" x-text="expiredDate">-</p>
-        </div>
+    <div style="text-align: center;"><img src="https://files.catbox.moe/sipqb2.png" class="logo" alt="Logo"></div>
+    <div class="username" id="usernameDisplay">مرحباً, Loading...</div>
+    <div class="connected">Connected</div>
+
+    <input type="text" id="targetNumber" placeholder="Input target number. example: 628123456789">
+
+    <div class="dropdown" id="customDropdown">
+      <div class="dropdown-toggle"><span id="selectedMode">— Select Mode —</span><i class="fas fa-chevron-down"></i></div>
+      <div class="dropdown-menu">
+        <div class="dropdown-item" data-value="iosfc">📱 iOS Force Close</div>
+        <div class="dropdown-item" data-value="androdelay">🤖 Android Delay Attack</div>
+        <div class="dropdown-item" data-value="androdelay2">👻 Android Invisible Attack</div>
       </div>
     </div>
-    
-    <!-- Execution Card -->
-    <div class="bg-purple-950/30 backdrop-blur-md rounded-2xl border border-purple-700/50 p-6">
-      <h3 class="font-display font-semibold text-xl text-white mb-6">⚡ Execute Attack</h3>
-      
-      <!-- Target Input -->
-      <div class="mb-5">
-        <label class="block text-sm font-medium text-purple-300 mb-2">Please input target number. example : 62xxxx</label>
-        <input type="text" id="targetNumber" class="w-full px-4 py-3 rounded-xl bg-purple-900/30 border border-purple-700 text-purple-200 placeholder-purple-500 focus:border-purple-500 focus:outline-none transition" placeholder="628123456789">
-      </div>
-      
-      <!-- Mode Dropdown -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-purple-300 mb-2">Select Mode</label>
-        <div class="relative">
-          <button @click="dropdownOpen=!dropdownOpen" class="w-full px-4 py-3 text-left rounded-xl bg-purple-900/30 border border-purple-700 flex justify-between items-center text-purple-200">
-            <span x-text="selectedModeName">— Select Mode —</span>
-            <svg class="w-4 h-4 transition-transform" :class="dropdownOpen?'rotate-180':''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div x-show="dropdownOpen" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-purple-900 border border-purple-700 rounded-xl shadow-xl z-20">
-            <div class="py-1">
-              <div @click="selectMode('iosfc', 'S\' Forclose')" class="px-4 py-2 hover:bg-purple-800 cursor-pointer text-purple-200">S' Forclose</div>
-              <div @click="selectMode('androdelay', 'Crashed IoS')" class="px-4 py-2 hover:bg-purple-800 cursor-pointer text-purple-200">Crashed IoS</div>
-              <div @click="selectMode('androdelay2', 'InVisible Android')" class="px-4 py-2 hover:bg-purple-800 cursor-pointer text-purple-200">InVisible Android</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Daily Usage -->
-      <div class="mb-6 p-4 bg-purple-900/20 rounded-xl border border-purple-800/30">
-        <div class="flex justify-between text-sm mb-2">
-          <span class="text-purple-300">Daily Usage</span>
-          <span class="text-purple-200" x-text="usageText">0/10</span>
-        </div>
-        <div class="w-full bg-purple-800/50 rounded-full h-2 overflow-hidden">
-          <div class="bg-purple-500 h-2 rounded-full transition-all" :style="`width: ${usagePercent}%`"></div>
-        </div>
-      </div>
-      
-      <!-- Execute Button -->
-      <button id="executeBtn" @click="execute" :disabled="!canExecute" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-purple-600/30 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5">
-        <span x-show="!executing">🚀 EXECUTE</span>
-        <span x-show="executing" class="flex items-center justify-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...</span>
-      </button>
-      
-      <!-- Cooldown Timer -->
-      <div x-show="cooldown > 0" x-cloak class="mt-4 text-center">
-        <p class="text-sm text-purple-400">Cooldown: <span x-text="cooldown" class="font-semibold text-purple-300"></span> seconds</p>
-      </div>
+
+    <div class="usage-stats" id="usageStats">
+      <span id="usageText">Loading usage data...</span>
+      <div class="progress-bar"><div class="progress-fill" id="usageProgress"></div></div>
     </div>
-    
-    <!-- Footer Actions -->
-    <div class="flex gap-4 mt-8">
-      <a href="https://t.me/rizxvelzexct" target="_blank" class="flex-1 py-3 text-center rounded-xl border border-purple-700 text-purple-300 hover:bg-purple-800/30 transition">📱 Developer</a>
-      <button @click="goToUserList" x-show="showManageUser" class="flex-1 py-3 rounded-xl border border-purple-700 text-purple-300 hover:bg-purple-800/30 transition">👥 Manage User</button>
-      <button @click="logout" class="flex-1 py-3 rounded-xl border border-red-700 text-red-400 hover:bg-red-900/30 transition">🚪 Logout</button>
-    </div>
-    
-    <!-- User Info Footer -->
-    <div class="mt-6 text-center text-sm text-purple-400">
-      <span x-text="`👤 ${username}`"></span> | <span x-text="`⏰ ${expiredDate}`"></span>
+
+    <button class="execute-button" id="executeBtn" disabled><i class="fas fa-rocket"></i> Execute</button>
+
+    <div class="footer-action-container">
+      <div class="footer-button"><a href="https://t.me/rizxvelzinfinity" target="_blank"><i class="fab fa-telegram"></i> Developer</a></div>
+      <div class="footer-button" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
+      <div class="footer-button" id="userInfoFooter"><i class="fas fa-user"></i> -- | <i class="fas fa-hourglass-half"></i> --</div>
     </div>
   </div>
-</main>
 
-<!-- Modal -->
-<div id="resultModal" class="modal">
-  <div class="modal-content">
-    <div class="text-5xl mb-3" x-text="modalIcon">✅</div>
-    <h3 class="font-display font-bold text-2xl text-white mb-2" x-text="modalTitle">Success</h3>
-    <p class="text-purple-300 mb-4 whitespace-pre-line" x-text="modalMessage"></p>
-    <button @click="closeModal" class="modal-close">Close</button>
+  <div id="responseModal" class="modal">
+    <div class="modal-content"><h3 id="modalTitle">Success</h3><p id="modalMessage"></p><button class="modal-close" onclick="closeModal()">Close</button></div>
   </div>
-</div>
+  <div id="toast" class="toast"></div>
 
-<div id="toast" class="toast"><span id="toastMsg"></span></div>
-
-<script>
-const DAILY_LIMITS = { user: 10, reseller: 25, admin: 999, owner: 999 };
-const COOLDOWN_SECONDS = 60;
-
-function app() {
-  return {
-    dark: false,
-    mobileMenu: false,
-    dropdownOpen: false,
-    executing: false,
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    const DAILY_LIMITS = { user: 10, reseller: 25, admin: 999, owner: 999 };
+    const COOLDOWN_SECONDS = 60;
     
-    username: '',
-    role: '',
-    expired: 0,
-    usedToday: 0,
-    dailyLimit: 10,
-    remaining: 10,
+    let selectedMode = null;
+    let currentUser = null;
+    let cooldownUntil = 0;
+    let cooldownInterval = null;
+    let executing = false;
     
-    selectedMode: '',
-    selectedModeName: '',
-    cooldown: 0,
-    cooldownInterval: null,
+    function showToast(msg, type = "info") {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = "toast " + (type === "success" ? "success" : type === "error" ? "error" : "");
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
     
-    modalTitle: '',
-    modalMessage: '',
-    modalIcon: '',
+    function showModal(title, message) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('responseModal').style.display = 'flex';
+    }
+    function closeModal() { document.getElementById('responseModal').style.display = 'none'; }
     
-    init() {
-      this.dark = localStorage.getItem('theme') === 'dark';
-      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+    function isValidNumber(num) { return /^[0-9]{10,15}$/.test(num.replace(/\D/g, "")); }
+    function getRemainingCooldown() { return Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000)); }
+    
+    function startCooldown() {
+      cooldownUntil = Date.now() + COOLDOWN_SECONDS * 1000;
+      localStorage.setItem("cooldownUntil", cooldownUntil);
+      applyCooldown();
+    }
+    
+    function applyCooldown() {
+      if (cooldownInterval) clearInterval(cooldownInterval);
+      const remaining = getRemainingCooldown();
+      if (remaining > 0) {
+        updateCooldownDisplay();
+        cooldownInterval = setInterval(() => {
+          if (getRemainingCooldown() <= 0) { clearInterval(cooldownInterval); updateCooldownDisplay(); } 
+          else { updateCooldownDisplay(); }
+        }, 1000);
+      } else { updateCooldownDisplay(); }
+    }
+    
+    function updateCooldownDisplay() {
+      const remaining = getRemainingCooldown();
+      const btn = document.getElementById("executeBtn");
+      const targetValid = isValidNumber(document.getElementById("targetNumber").value);
+      const hasMode = !!selectedMode;
+      const canExecute = currentUser && currentUser.remaining > 0;
       
-      if (localStorage.getItem('isLoggedIn') !== 'true') {
-        window.location.href = 'login.html';
-        return;
+      if (remaining > 0) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-hourglass-half"></i> Cooldown: ${remaining}s`;
+      } else {
+        btn.disabled = !(targetValid && hasMode && canExecute) || executing;
+        if (!btn.disabled && !executing) btn.innerHTML = '<i class="fas fa-rocket"></i> Execute';
+        else if (currentUser && currentUser.remaining <= 0) btn.innerHTML = '<i class="fas fa-ban"></i> Limit Reached';
+        else btn.innerHTML = '<i class="fas fa-rocket"></i> Execute';
+      }
+    }
+    
+    function loadCurrentUser() {
+      const userStr = localStorage.getItem("currentUser");
+      if (!userStr) { window.location.href = "login.html"; return null; }
+      
+      const user = JSON.parse(userStr);
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const fullUser = users.find(u => u.username === user.username);
+      
+      if (!fullUser || (fullUser.expired && Date.now() > fullUser.expired)) {
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("isLoggedIn");
+        window.location.href = "login.html";
+        return null;
       }
       
-      this.loadUserData();
-      this.loadCooldown();
-      setInterval(() => this.updateCooldown(), 1000);
-    },
-    
-    loadUserData() {
-      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      if (!user.username) {
-        window.location.href = 'login.html';
-        return;
-      }
-      
-      this.username = user.username;
-      this.role = user.role;
-      this.expired = user.expired;
-      
-      const today = new Date().toISOString().split('T')[0];
-      const usageKey = `usage_${this.username}`;
+      const today = new Date().toISOString().split("T")[0];
+      const usageKey = `usage_${user.username}`;
       let usageData = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
       
-      if (usageData.date !== today) {
-        usageData = { date: today, count: 0 };
-        localStorage.setItem(usageKey, JSON.stringify(usageData));
+      if (usageData.date !== today) { usageData = { date: today, count: 0 }; localStorage.setItem(usageKey, JSON.stringify(usageData)); }
+      
+      const limit = DAILY_LIMITS[user.role] || 10;
+      const remaining = Math.max(0, limit - usageData.count);
+      
+      currentUser = { username: user.username, role: user.role, expired: user.expired, usedToday: usageData.count, dailyLimit: limit, remaining: remaining };
+      
+      document.getElementById("usernameDisplay").innerHTML = `مرحباً, ${currentUser.username}`;
+      document.getElementById("userInfoFooter").innerHTML = `<i class="fas fa-user"></i> ${currentUser.username} | <i class="fas fa-hourglass-half"></i> ${new Date(currentUser.expired).toLocaleDateString()}`;
+      
+      const percent = (currentUser.usedToday / currentUser.dailyLimit) * 100;
+      document.getElementById("usageText").innerHTML = `📊 Daily Usage: ${currentUser.usedToday}/${currentUser.dailyLimit}`;
+      document.getElementById("usageProgress").style.width = `${Math.min(100, percent)}%`;
+      
+      if (currentUser.role === "owner" || currentUser.role === "admin" || currentUser.role === "reseller") {
+        document.getElementById("manageUserItem").style.display = "flex";
+        document.getElementById("manageUserItem").onclick = () => window.location.href = "userlist.html";
       }
       
-      this.dailyLimit = DAILY_LIMITS[this.role] || 10;
-      this.usedToday = usageData.count;
-      this.remaining = Math.max(0, this.dailyLimit - this.usedToday);
-    },
+      return currentUser;
+    }
     
-    get usageText() { return `${this.usedToday}/${this.dailyLimit}`; },
-    get usagePercent() { return (this.usedToday / this.dailyLimit) * 100; },
-    get expiredDate() { return new Date(this.expired).toLocaleDateString('id-ID'); },
-    get canExecute() { return this.selectedMode && this.remaining > 0 && this.cooldown === 0 && !this.executing; },
-    get showManageUser() { return ['owner', 'admin', 'reseller'].includes(this.role); },
-    
-    selectMode(mode, name) {
-      this.selectedMode = mode;
-      this.selectedModeName = name;
-      this.dropdownOpen = false;
-    },
-    
-    loadCooldown() {
-      const saved = localStorage.getItem(`cooldown_${this.username}`);
-      if (saved) {
-        const until = parseInt(saved);
-        if (until > Date.now()) this.cooldown = Math.ceil((until - Date.now()) / 1000);
-        else this.cooldown = 0;
-      }
-    },
-    
-    updateCooldown() {
-      if (this.cooldown > 0) {
-        this.cooldown--;
-        if (this.cooldown === 0) localStorage.removeItem(`cooldown_${this.username}`);
-      }
-    },
-    
-    startCooldown() {
-      const until = Date.now() + COOLDOWN_SECONDS * 1000;
-      localStorage.setItem(`cooldown_${this.username}`, until);
-      this.cooldown = COOLDOWN_SECONDS;
-    },
-    
-    incrementUsage() {
-      const today = new Date().toISOString().split('T')[0];
-      const usageKey = `usage_${this.username}`;
+    function incrementUsage() {
+      const today = new Date().toISOString().split("T")[0];
+      const usageKey = `usage_${currentUser.username}`;
       let usageData = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
       if (usageData.date !== today) usageData = { date: today, count: 0 };
       usageData.count++;
       localStorage.setItem(usageKey, JSON.stringify(usageData));
-      this.usedToday = usageData.count;
-      this.remaining = Math.max(0, this.dailyLimit - this.usedToday);
-    },
-    
-    showToast(msg, isError = false) {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.textContent = msg;
-      toast.className = 'toast ' + (isError ? 'error' : 'success');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3000);
-    },
-    
-    showModal(title, message, isSuccess = true) {
-      this.modalTitle = title;
-      this.modalMessage = message;
-      this.modalIcon = isSuccess ? '✅' : '❌';
-      document.getElementById('resultModal').classList.add('show');
-    },
-    
-    closeModal() {
-      document.getElementById('resultModal').classList.remove('show');
-    },
-    
-    execute() {
-      const target = document.getElementById('targetNumber').value.trim();
       
-      if (!target) { this.showToast('Please input target number!', true); return; }
-      if (!/^[0-9]{10,15}$/.test(target.replace(/\D/g, ''))) { this.showToast('Invalid number format!', true); return; }
-      if (!this.selectedMode) { this.showToast('Please select mode!', true); return; }
-      if (this.remaining <= 0 && this.role !== 'owner' && this.role !== 'admin') { this.showToast('Daily limit reached!', true); return; }
+      currentUser.usedToday = usageData.count;
+      currentUser.remaining = Math.max(0, currentUser.dailyLimit - usageData.count);
       
-      this.executing = true;
+      const percent = (currentUser.usedToday / currentUser.dailyLimit) * 100;
+      document.getElementById("usageText").innerHTML = `📊 Daily Usage: ${currentUser.usedToday}/${currentUser.dailyLimit}`;
+      document.getElementById("usageProgress").style.width = `${Math.min(100, percent)}%`;
+      updateCooldownDisplay();
+    }
+    
+    function executeAttack() {
+      const target = document.getElementById("targetNumber").value.trim();
+      
+      if (!isValidNumber(target)) { showToast("Invalid number! Use format: 628123456789", "error"); return; }
+      if (!selectedMode) { showToast("Select a mode first!", "error"); return; }
+      if (getRemainingCooldown() > 0) { showToast(`Cooldown: ${getRemainingCooldown()}s`, "error"); return; }
+      if (currentUser.remaining <= 0 && currentUser.role !== "owner" && currentUser.role !== "admin") {
+        showToast("Daily limit reached!", "error"); return;
+      }
+      
+      executing = true;
+      const btn = document.getElementById("executeBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
       
       setTimeout(() => {
-        this.incrementUsage();
-        this.startCooldown();
-        this.showToast('Success Attack Bugs ✅', false);
-        this.showModal('✅ S U C C E S', `Target: ${target}\nMode: ${this.selectedModeName}\nTime: ${new Date().toLocaleString('id-ID')}`, true);
-        this.executing = false;
+        incrementUsage();
+        startCooldown();
+        executing = false;
+        
+        const modeName = selectedMode === "iosfc" ? "iOS Force Close" : selectedMode === "androdelay" ? "Android Delay Attack" : "Android Invisible Attack";
+        
+        showToast("✅ Attack executed successfully!", "success");
+        showModal("✅ SUCCESS", `Target: ${target}\nMode: ${modeName}\nTime: ${new Date().toLocaleString("id-ID")}`);
+        
+        btn.innerHTML = '<i class="fas fa-rocket"></i> Execute';
+        updateCooldownDisplay();
       }, 1500);
-    },
-    
-    goToUserList() { window.location.href = 'userlist.html'; },
-    
-    logout() {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find(u => u.username === this.username);
-      if (user) user.isLoggedIn = false;
-      localStorage.setItem('users', JSON.stringify(users));
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('isLoggedIn');
-      window.location.href = 'login.html';
     }
-  }
-}
-</script>
+    
+    function initDropdown() {
+      const dropdown = document.getElementById("customDropdown");
+      const toggle = dropdown.querySelector(".dropdown-toggle");
+      const menu = dropdown.querySelector(".dropdown-menu");
+      const selectedText = document.getElementById("selectedMode");
+      
+      toggle.addEventListener("click", () => dropdown.classList.toggle("open"));
+      document.addEventListener("click", (e) => { if (!dropdown.contains(e.target)) dropdown.classList.remove("open"); });
+      
+      menu.querySelectorAll(".dropdown-item").forEach(item => {
+        item.addEventListener("click", () => {
+          selectedMode = item.dataset.value;
+          selectedText.textContent = item.textContent.trim();
+          dropdown.classList.remove("open");
+          updateCooldownDisplay();
+        });
+      });
+    }
+    
+    function initHamburger() {
+      const hamburger = document.getElementById("hamburgerMenu");
+      hamburger.addEventListener("click", (e) => { e.stopPropagation(); hamburger.classList.toggle("active"); });
+      document.addEventListener("click", (e) => { if (!hamburger.contains(e.target)) hamburger.classList.remove("active"); });
+    }
+    
+    function logout() {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      if (currentUser) {
+        const user = users.find(u => u.username === currentUser.username);
+        if (user) user.isLoggedIn = false;
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html";
+    }
+    
+    document.getElementById("targetNumber").addEventListener("input", () => updateCooldownDisplay());
+    document.getElementById("executeBtn").addEventListener("click", executeAttack);
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+    
+    const savedCooldown = localStorage.getItem("cooldownUntil");
+    if (savedCooldown) cooldownUntil = parseInt(savedCooldown);
+    
+    initDropdown();
+    initHamburger();
+    
+    if (loadCurrentUser()) {
+      particleground(document.getElementById('particles'), {
+        dotColor: '#a5b4fc', lineColor: '#6366f1',
+        minSpeedX: 0.1, maxSpeedX: 0.3, minSpeedY: 0.1, maxSpeedY: 0.3,
+        density: 10000, particleRadius: 3,
+      });
+      applyCooldown();
+    }
+  </script>
 </body>
 </html>

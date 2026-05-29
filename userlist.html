@@ -1,229 +1,215 @@
 <!DOCTYPE html>
-<html lang="id" x-data="app()" :class="{'dark':dark}">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Syonx - User Management</title>
+  <title>User Management - Zero</title>
   
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
-          colors: { 'primary': '#3b82f6', 'primary-dark': '#2563eb' }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   
   <style>
-    *,*::before,*::after{box-sizing:border-box}
-    body{font-family:'Inter',sans-serif}
-    ::-webkit-scrollbar{width:5px}
-    ::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:99px}
-    .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;background:#3b82f6;color:white;z-index:1000;transform:translateX(400px);transition:transform .3s}
-    .toast.show{transform:translateX(0)}
-    .toast.error{background:#ef4444}
-    [x-cloak]{display:none!important}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #a5b4fc;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+    #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+    
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #1a1a2e; }
+    ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 99px; }
+    
+    .container {
+      position: relative; z-index: 2; max-width: 1200px; margin: 0 auto;
+      background: rgba(0,0,0,0.7); border: 1px solid #6366f1; border-radius: 20px;
+      padding: 30px; backdrop-filter: blur(10px);
+    }
+    h1 { text-align: center; color: #c7d2fe; margin-bottom: 30px; }
+    .table-container { overflow-x: auto; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #6366f1; }
+    th { background: rgba(99,102,241,0.2); color: #c7d2fe; }
+    button {
+      padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer;
+      margin: 0 4px; font-family: 'Poppins', sans-serif;
+    }
+    .btn-delete { background: #ef4444; color: white; }
+    .btn-edit { background: #6366f1; color: white; }
+    .btn-add { background: #22c55e; color: white; padding: 10px 20px; margin-top: 10px; cursor: pointer; border: none; border-radius: 8px; }
+    .form-add {
+      margin-top: 30px; padding: 20px; background: rgba(99,102,241,0.1);
+      border-radius: 10px; display: none; border: 1px solid #6366f1;
+    }
+    .form-add input, .form-add select {
+      padding: 10px; margin: 5px; border-radius: 6px;
+      border: 1px solid #6366f1; background: #1a001a; color: white;
+    }
+    .back-btn {
+      display: inline-block; margin-top: 20px; padding: 10px 20px;
+      background: #4f46e5; color: white; text-decoration: none; border-radius: 8px;
+    }
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
+      border-radius: 8px; background: #22c55e; color: white; z-index: 1000;
+    }
+    @media (max-width: 600px) { th, td { padding: 8px; font-size: 13px; } }
   </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-
-<header class="fixed top-0 inset-x-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md shadow-sm">
-  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="execution.html" class="font-display font-bold text-xl">Syonx<span class="text-primary">Light</span></a>
-    <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800">
-      <svg x-show="!dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-      <svg x-show="dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
-    </button>
-  </nav>
-</header>
-
-<main class="pt-24 pb-12 max-w-6xl mx-auto px-6">
-  <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
-    <h1 class="font-display font-bold text-3xl">👥 User Management</h1>
-    <button @click="showAddForm=!showAddForm" class="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition">+ Add User</button>
-  </div>
-  
-  <!-- Add User Form -->
-  <div x-show="showAddForm" x-cloak class="bg-white dark:bg-gray-900 rounded-2xl p-6 mb-8 border border-gray-200 dark:border-gray-800">
-    <h3 class="font-semibold text-lg mb-4">Add New User</h3>
-    <div class="grid md:grid-cols-4 gap-4">
-      <input type="text" x-model="newUsername" placeholder="Username" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <input type="text" x-model="newPassword" placeholder="Password" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <input type="number" x-model="newDurasi" placeholder="Days" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <select x-model="newRole" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-        <option value="user">User</option>
-        <option value="reseller" x-show="canCreateReseller">Reseller</option>
-        <option value="admin" x-show="canCreateAdmin">Admin</option>
-      </select>
-    </div>
-    <div class="mt-4 flex gap-3">
-      <button @click="addUser" class="px-5 py-2 bg-primary text-white rounded-xl">Create</button>
-      <button @click="showAddForm=false" class="px-5 py-2 border border-gray-300 dark:border-gray-700 rounded-xl">Cancel</button>
-    </div>
-  </div>
-  
-  <!-- User Table -->
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <tr>
-            <th class="px-6 py-4 text-left text-sm font-semibold">Username</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold">Expired</th>
-            <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template x-for="user in filteredUsers" :key="user.username">
-            <tr class="border-b border-gray-100 dark:border-gray-800">
-              <td class="px-6 py-4" x-text="user.username"></td>
-              <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs" :class="user.role==='owner'?'bg-purple-100 text-purple-700':user.role==='admin'?'bg-blue-100 text-blue-700':user.role==='reseller'?'bg-orange-100 text-orange-700':'bg-gray-100 text-gray-700'" x-text="user.role"></span></td>
-              <td class="px-6 py-4 text-sm" x-text="formatDate(user.expired)"></td>
-              <td class="px-6 py-4">
-                <button @click="editUser(user.username)" class="text-primary hover:text-primary-dark text-sm mr-3">Edit</button>
-                <button @click="deleteUser(user.username)" class="text-red-500 hover:text-red-600 text-sm" x-show="!isProtected(user)">Delete</button>
-              </td>
-            </tr>
-          </template>
-        </tbody>
+<body>
+  <div id="particles"></div>
+  <div class="container">
+    <h1><i class="fas fa-users"></i> User Management</h1>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Username</th><th>Role</th><th>Expired</th><th>Action</th></tr></thead>
+        <tbody id="userTableBody"></tbody>
       </table>
     </div>
+    <button onclick="toggleForm()" class="btn-add"><i class="fas fa-user-plus"></i> Add User</button>
+    <div id="addForm" class="form-add">
+      <h3>Add New User</h3>
+      <input type="text" id="newUsername" placeholder="Username">
+      <input type="text" id="newPassword" placeholder="Password">
+      <input type="number" id="newDurasi" placeholder="Days" value="30">
+      <select id="newRole"></select>
+      <button onclick="addUser()" style="background:#6366f1; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Create</button>
+    </div>
+    <br><a href="execution.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   </div>
-  
-  <div class="mt-8">
-    <a href="execution.html" class="inline-block px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl hover:border-primary transition">← Back to Dashboard</a>
-  </div>
-</main>
+  <div id="toast" class="toast" style="display:none"></div>
 
-<div id="toast" class="toast"><span id="toastMsg"></span></div>
-
-<script>
-function app() {
-  return {
-    dark: false,
-    showAddForm: false,
-    newUsername: '',
-    newPassword: '',
-    newDurasi: 30,
-    newRole: 'user',
+  <script src="https://cdn.jsdelivr.net/gh/jnicol/particleground/jquery.particleground.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    let currentUserRole = "";
     
-    currentUser: null,
-    users: [],
-    
-    init() {
-      this.dark = localStorage.getItem('theme') === 'dark';
-      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
-      
-      if (localStorage.getItem('isLoggedIn') !== 'true') {
-        window.location.href = 'login.html';
-        return;
-      }
-      
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      this.loadUsers();
-    },
-    
-    loadUsers() {
-      this.users = JSON.parse(localStorage.getItem('users') || '[]');
-    },
-    
-    saveUsers() {
-      localStorage.setItem('users', JSON.stringify(this.users));
-    },
-    
-    get currentUserRole() {
-      return this.currentUser.role;
-    },
-    
-    get canCreateReseller() {
-      return this.currentUserRole === 'owner' || this.currentUserRole === 'admin';
-    },
-    
-    get canCreateAdmin() {
-      return this.currentUserRole === 'owner';
-    },
-    
-    get filteredUsers() {
-      let filtered = this.users;
-      if (this.currentUserRole === 'reseller') {
-        filtered = filtered.filter(u => u.role === 'user');
-      } else if (this.currentUserRole === 'admin') {
-        filtered = filtered.filter(u => u.role !== 'owner');
-      }
-      return filtered;
-    },
-    
-    isProtected(user) {
-      if (user.username === this.currentUser.username) return true;
-      if (this.currentUserRole === 'reseller' && user.role !== 'user') return true;
-      if (this.currentUserRole === 'admin' && (user.role === 'admin' || user.role === 'owner')) return true;
-      if (this.currentUserRole !== 'owner' && user.role === 'owner') return true;
-      return false;
-    },
-    
-    formatDate(timestamp) {
-      return new Date(timestamp).toLocaleDateString('id-ID');
-    },
-    
-    showToast(msg, isError = false) {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.textContent = msg;
-      toast.className = 'toast ' + (isError ? 'error' : '');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3000);
-    },
-    
-    addUser() {
-      if (!this.newUsername || !this.newPassword) {
-        this.showToast('Fill username & password!', true);
-        return;
-      }
-      
-      if (this.users.find(u => u.username === this.newUsername)) {
-        this.showToast('Username exists!', true);
-        return;
-      }
-      
-      const expired = Date.now() + (this.newDurasi * 86400000);
-      this.users.push({
-        username: this.newUsername,
-        password: this.newPassword,
-        role: this.newRole,
-        expired: expired,
-        isLoggedIn: false
-      });
-      
-      this.saveUsers();
-      this.showToast('User added successfully!');
-      this.newUsername = '';
-      this.newPassword = '';
-      this.newDurasi = 30;
-      this.newRole = 'user';
-      this.showAddForm = false;
-    },
-    
-    editUser(username) {
-      window.location.href = `edituser.html?username=${encodeURIComponent(username)}`;
-    },
-    
-    deleteUser(username) {
-      if (!confirm(`Delete user "${username}"?`)) return;
-      
-      this.users = this.users.filter(u => u.username !== username);
-      this.saveUsers();
-      this.showToast('User deleted!');
+    function loadCurrentUser() {
+      const userStr = localStorage.getItem("currentUser");
+      if (!userStr) { window.location.href = "login.html"; return null; }
+      const user = JSON.parse(userStr);
+      currentUserRole = user.role;
+      return user;
     }
-  }
-}
-</script>
+    
+    function getUsers() { return JSON.parse(localStorage.getItem("users") || "[]"); }
+    function saveUsers(users) { localStorage.setItem("users", JSON.stringify(users)); }
+    
+    function renderUserTable() {
+      const users = getUsers();
+      const currentUsername = JSON.parse(localStorage.getItem("currentUser") || "{}").username;
+      
+      let filtered = users;
+      if (currentUserRole === "reseller") filtered = users.filter(u => u.role === "user");
+      if (currentUserRole === "admin") filtered = users.filter(u => u.role !== "owner");
+      
+      const tbody = document.getElementById("userTableBody");
+      tbody.innerHTML = "";
+      
+      filtered.forEach(user => {
+        const isProtected = user.username === currentUsername ||
+          (currentUserRole === "reseller" && user.role !== "user") ||
+          (currentUserRole === "admin" && (user.role === "admin" || user.role === "owner")) ||
+          (currentUserRole !== "owner" && user.role === "owner");
+        
+        const canEdit = currentUserRole === "owner" ||
+          (currentUserRole === "admin" && (user.role === "user" || user.role === "reseller")) ||
+          (currentUserRole === "reseller" && user.role === "user");
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = user.username;
+        row.insertCell(1).textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        row.insertCell(2).textContent = new Date(user.expired).toLocaleString("id-ID");
+        
+        const actionCell = row.insertCell(3);
+        if (!isProtected) {
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "Delete";
+          delBtn.className = "btn-delete";
+          delBtn.onclick = () => deleteUser(user.username);
+          actionCell.appendChild(delBtn);
+        }
+        if (canEdit && !isProtected) {
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.className = "btn-edit";
+          editBtn.onclick = () => editUser(user.username);
+          actionCell.appendChild(editBtn);
+        }
+      });
+    }
+    
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.backgroundColor = isError ? "#ef4444" : "#22c55e";
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 3000);
+    }
+    
+    function toggleForm() {
+      const form = document.getElementById("addForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+      
+      const roleSelect = document.getElementById("newRole");
+      roleSelect.innerHTML = "";
+      let roles = [];
+      if (currentUserRole === "owner") roles = ["user", "reseller", "admin"];
+      else if (currentUserRole === "admin") roles = ["user", "reseller"];
+      else if (currentUserRole === "reseller") roles = ["user"];
+      
+      roles.forEach(role => {
+        const opt = document.createElement("option");
+        opt.value = role;
+        opt.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+        roleSelect.appendChild(opt);
+      });
+    }
+    
+    function addUser() {
+      const username = document.getElementById("newUsername").value.trim();
+      const password = document.getElementById("newPassword").value;
+      const durasi = parseInt(document.getElementById("newDurasi").value);
+      const role = document.getElementById("newRole").value;
+      
+      if (!username || !password) { showToast("Fill username & password!", true); return; }
+      
+      const users = getUsers();
+      if (users.find(u => u.username === username)) { showToast("Username exists!", true); return; }
+      
+      const expired = Date.now() + durasi * 86400000;
+      users.push({ username, password, expired, role, isLoggedIn: false });
+      saveUsers(users);
+      
+      showToast("User added!");
+      setTimeout(() => location.reload(), 1500);
+    }
+    
+    function deleteUser(username) {
+      if (!confirm(`Delete ${username}?`)) return;
+      const users = getUsers().filter(u => u.username !== username);
+      saveUsers(users);
+      showToast("User deleted!");
+      renderUserTable();
+    }
+    
+    function editUser(username) {
+      window.location.href = `edituser.html?username=${encodeURIComponent(username)}`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!loadCurrentUser()) return;
+      renderUserTable();
+      particleground(document.getElementById('particles'), {
+        dotColor: '#a5b4fc', lineColor: '#6366f1',
+        minSpeedX: 0.1, maxSpeedX: 0.3, minSpeedY: 0.1, maxSpeedY: 0.3,
+        density: 10000, particleRadius: 3,
+      });
+    });
+  </script>
 </body>
 </html>
