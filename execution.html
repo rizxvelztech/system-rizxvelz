@@ -306,7 +306,9 @@
         const modeName = selectedMode === "iosfc" ? "Heavy Delay" : "Crash InVisible";
         
         showToast("✅ Attack executed successfully!", "success");
-        showModal("✅ Success", `Target: ${target}\n\nMode: ${modeName}\n\nTime: ${new Date().toLocaleString("id-ID")}`);
+        showModal("✅ Success", `Target: ${target}
+        Mode: ${modeName}
+        Time: ${new Date().toLocaleString("id-ID")}`);
         
         btn.innerHTML = '<i class="fas fa-rocket"></i> Execute';
         updateCooldownDisplay();
