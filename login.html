@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id" x-data="app()" :class="{'dark':dark}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Syonx - Login</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
+          colors: { 'primary': '#3b82f6', 'primary-dark': '#2563eb' }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
+    h1,h2,h3{font-family:'Poppins',sans-serif}
+    
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:99px}
+    
+    .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;background:#3b82f6;color:white;z-index:1000;transform:translateX(400px);transition:transform .3s ease}
+    .toast.show{transform:translateX(0)}
+    .toast.error{background:#ef4444}
+    
+    [x-cloak]{display:none!important}
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+<div class="relative z-10 w-full max-w-md mx-auto px-6">
+  <!-- Logo -->
+  <div class="text-center mb-8">
+    <h1 class="font-display font-bold text-3xl tracking-tight">
+      <span class="text-gray-900 dark:text-white">Syonx</span><span class="text-primary">Light</span>
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Gateway to System API Platform</p>
+  </div>
+  
+  <!-- Login Card -->
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-8">
+    <h2 class="font-display font-semibold text-2xl text-center mb-6">Welcome Back</h2>
+    
+    <form id="loginForm" @submit.prevent="login">
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Username</label>
+        <input type="text" id="username" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none transition" placeholder="Enter username">
+      </div>
+      
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2">Password</label>
+        <input type="password" id="password" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none transition" placeholder="Enter password">
+      </div>
+      
+      <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+        Login →
+      </button>
+    </form>
+    
+    <div class="mt-6 text-center">
+      <a href="index.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition">← Back to Home</a>
+    </div>
+  </div>
+  
+  <p class="text-center text-xs text-gray-400 mt-8">© 2024 SyonxLight. All rights reserved.</p>
+</div>
+
+<div id="toast" class="toast"><span id="toastMsg"></span></div>
+
+<script>
+function app() {
+  return {
+    dark: false,
+    
+    init() {
+      this.dark = localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+      
+      // Check if already logged in
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+        window.location.href = 'execution.html';
+      }
+    },
+    
+    login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      
+      // Default users
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      if (users.length === 0) {
+        const defaultUsers = [
+          { username: 'admin', password: 'admin123', role: 'owner', expired: Date.now() + 365*86400000, isLoggedIn: false },
+          { username: 'demo', password: 'demo123', role: 'user', expired: Date.now() + 30*86400000, isLoggedIn: false }
+        ];
+        localStorage.setItem('users', JSON.stringify(defaultUsers));
+      }
+      
+      const updatedUsers = JSON.parse(localStorage.getItem('users'));
+      const user = updatedUsers.find(u => u.username === username && u.password === password);
+      
+      if (!user) {
+        this.showToast('Invalid username or password!', true);
+        return;
+      }
+      
+      if (user.expired && Date.now() > user.expired) {
+        this.showToast('Account expired!', true);
+        return;
+      }
+      
+      if (user.isLoggedIn && user.role !== 'owner') {
+        this.showToast('User already logged in on another device!', true);
+        return;
+      }
+      
+      user.isLoggedIn = true;
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      localStorage.setItem('currentUser', JSON.stringify({
+        username: user.username, role: user.role, expired: user.expired
+      }));
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      this.showToast('Login successful! Redirecting...');
+      setTimeout(() => window.location.href = 'execution.html', 1000);
+    },
+    
+    showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.className = 'toast ' + (isError ? 'error' : '');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  }
+}
+</script>
+</body>
+</html>

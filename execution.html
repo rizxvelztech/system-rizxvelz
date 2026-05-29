@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id" x-data="app()" :class="{'dark':dark}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Syonx - Execution Panel</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
+          colors: { 'primary': '#3b82f6', 'primary-dark': '#2563eb' }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
+    h1,h2,h3{font-family:'Poppins',sans-serif}
+    
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:99px}
+    
+    .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;background:#3b82f6;color:white;z-index:1000;transform:translateX(400px);transition:transform .3s ease}
+    .toast.show{transform:translateX(0)}
+    .toast.error{background:#ef4444}
+    .toast.success{background:#22c55e}
+    
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;visibility:hidden;transition:all .3s}
+    .modal.show{opacity:1;visibility:visible}
+    .modal-content{background:white;border-radius:24px;padding:28px;max-width:400px;width:90%;transform:scale(0.9);transition:transform .3s}
+    .dark .modal-content{background:#1f2937}
+    .modal.show .modal-content{transform:scale(1)}
+    
+    [x-cloak]{display:none!important}
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+
+<!-- Navigation -->
+<header class="fixed top-0 inset-x-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md shadow-sm">
+  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="index.html" class="font-display font-bold text-xl tracking-tight">
+      <span class="text-gray-900 dark:text-white">Syonx</span><span class="text-primary">Light</span>
+    </a>
+    
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-gray-500 dark:text-gray-400 hidden md:inline" x-text="'👋 ' + username"></span>
+      <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900">
+        <svg x-show="!dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg x-show="dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      </button>
+      <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800">
+        <svg x-show="!mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg x-show="mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div x-show="mobileMenu" x-cloak x-transition class="md:hidden bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-900">
+    <ul class="flex flex-col px-6 py-4 gap-3">
+      <li><a href="userlist.html" x-show="showManageUser" class="block text-gray-700 dark:text-gray-300 py-2">👥 Manage Users</a></li>
+      <li><a href="#" @click="logout" class="block text-red-500 py-2">🚪 Logout</a></li>
+    </ul>
+  </div>
+</header>
+
+<main class="pt-24 pb-12">
+  <div class="max-w-2xl mx-auto px-6">
+    <!-- User Info Card -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6 mb-8">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Welcome back,</p>
+          <h2 class="font-display font-bold text-2xl" x-text="username">User</h2>
+          <p class="text-xs text-gray-400 mt-1">Role: <span x-text="role" class="text-primary"></span></p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm text-gray-500 dark:text-gray-400">Expired</p>
+          <p class="font-medium" x-text="expiredDate">-</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Execution Card -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
+      <h3 class="font-display font-semibold text-xl mb-6">⚡ Execute Attack</h3>
+      
+      <!-- Target Input -->
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-2">Target Number</label>
+        <input type="text" id="targetNumber" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none transition" placeholder="628123456789">
+        <p class="text-xs text-gray-400 mt-1">Format: 628XXXXXXXXXX</p>
+      </div>
+      
+      <!-- Mode Dropdown -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2">Attack Mode</label>
+        <div class="relative">
+          <button @click="dropdownOpen=!dropdownOpen" class="w-full px-4 py-3 text-left rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <span x-text="selectedModeName">Select Mode</span>
+            <svg class="w-4 h-4 transition-transform" :class="dropdownOpen?'rotate-180':''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div x-show="dropdownOpen" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-20">
+            <div class="py-1">
+              <div @click="selectMode('iosfc', '📱 iOS Force Close')" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">📱 iOS Force Close</div>
+              <div @click="selectMode('androdelay', '🤖 Android Delay Attack')" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">🤖 Android Delay Attack</div>
+              <div @click="selectMode('androdelay2', '👻 Android Invisible Attack')" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">👻 Android Invisible Attack</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Daily Usage -->
+      <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
+        <div class="flex justify-between text-sm mb-2">
+          <span>Daily Usage</span>
+          <span x-text="usageText">0/10</span>
+        </div>
+        <div class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div class="bg-primary h-2 rounded-full transition-all" :style="`width: ${usagePercent}%`"></div>
+        </div>
+      </div>
+      
+      <!-- Execute Button -->
+      <button id="executeBtn" @click="execute" :disabled="!canExecute" class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3.5 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+        <span x-show="!executing">🚀 Execute Now</span>
+        <span x-show="executing" class="flex items-center justify-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...</span>
+      </button>
+      
+      <!-- Cooldown Timer -->
+      <div x-show="cooldown > 0" x-cloak class="mt-4 text-center">
+        <p class="text-sm text-gray-500">Cooldown: <span x-text="cooldown" class="font-semibold text-primary"></span> seconds</p>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="flex gap-4 mt-8">
+      <button @click="goToUserList" x-show="showManageUser" class="flex-1 py-3 rounded-xl border border-gray-300 dark:border-gray-700 hover:border-primary transition">👥 Manage Users</button>
+      <button @click="logout" class="flex-1 py-3 rounded-xl border border-red-300 dark:border-red-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition">🚪 Logout</button>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="resultModal" class="modal">
+  <div class="modal-content text-center">
+    <div class="text-6xl mb-4" x-text="modalIcon">✅</div>
+    <h3 class="font-display font-bold text-2xl mb-2" x-text="modalTitle">Success</h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-6 whitespace-pre-line" x-text="modalMessage"></p>
+    <button @click="closeModal" class="px-6 py-2 bg-primary text-white rounded-lg">Close</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"><span id="toastMsg"></span></div>
+
+<script>
+// Constants
+const DAILY_LIMITS = { user: 10, reseller: 25, admin: 999, owner: 999 };
+const COOLDOWN_SECONDS = 60;
+
+function app() {
+  return {
+    dark: false,
+    mobileMenu: false,
+    dropdownOpen: false,
+    executing: false,
+    
+    username: '',
+    role: '',
+    expired: 0,
+    usedToday: 0,
+    dailyLimit: 10,
+    remaining: 10,
+    
+    selectedMode: '',
+    selectedModeName: '',
+    cooldown: 0,
+    cooldownInterval: null,
+    
+    modalTitle: '',
+    modalMessage: '',
+    modalIcon: '',
+    
+    init() {
+      this.dark = localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+      
+      // Check login
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      this.loadUserData();
+      this.loadCooldown();
+      
+      // Check cooldown every second
+      setInterval(() => this.updateCooldown(), 1000);
+    },
+    
+    loadUserData() {
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (!user.username) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      this.username = user.username;
+      this.role = user.role;
+      this.expired = user.expired;
+      
+      const today = new Date().toISOString().split('T')[0];
+      const usageKey = `usage_${this.username}`;
+      let usageData = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
+      
+      if (usageData.date !== today) {
+        usageData = { date: today, count: 0 };
+        localStorage.setItem(usageKey, JSON.stringify(usageData));
+      }
+      
+      this.dailyLimit = DAILY_LIMITS[this.role] || 10;
+      this.usedToday = usageData.count;
+      this.remaining = Math.max(0, this.dailyLimit - this.usedToday);
+    },
+    
+    get usageText() {
+      return `${this.usedToday}/${this.dailyLimit}`;
+    },
+    
+    get usagePercent() {
+      return (this.usedToday / this.dailyLimit) * 100;
+    },
+    
+    get expiredDate() {
+      return new Date(this.expired).toLocaleDateString('id-ID');
+    },
+    
+    get canExecute() {
+      return this.selectedMode && this.remaining > 0 && this.cooldown === 0 && !this.executing;
+    },
+    
+    get showManageUser() {
+      return ['owner', 'admin', 'reseller'].includes(this.role);
+    },
+    
+    selectMode(mode, name) {
+      this.selectedMode = mode;
+      this.selectedModeName = name;
+      this.dropdownOpen = false;
+    },
+    
+    loadCooldown() {
+      const saved = localStorage.getItem(`cooldown_${this.username}`);
+      if (saved) {
+        const until = parseInt(saved);
+        if (until > Date.now()) {
+          this.cooldown = Math.ceil((until - Date.now()) / 1000);
+        } else {
+          this.cooldown = 0;
+          localStorage.removeItem(`cooldown_${this.username}`);
+        }
+      }
+    },
+    
+    updateCooldown() {
+      if (this.cooldown > 0) {
+        this.cooldown--;
+        if (this.cooldown === 0) {
+          localStorage.removeItem(`cooldown_${this.username}`);
+        }
+      }
+    },
+    
+    startCooldown() {
+      const until = Date.now() + COOLDOWN_SECONDS * 1000;
+      localStorage.setItem(`cooldown_${this.username}`, until);
+      this.cooldown = COOLDOWN_SECONDS;
+    },
+    
+    incrementUsage() {
+      const today = new Date().toISOString().split('T')[0];
+      const usageKey = `usage_${this.username}`;
+      let usageData = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
+      
+      if (usageData.date !== today) {
+        usageData = { date: today, count: 0 };
+      }
+      
+      usageData.count++;
+      localStorage.setItem(usageKey, JSON.stringify(usageData));
+      
+      this.usedToday = usageData.count;
+      this.remaining = Math.max(0, this.dailyLimit - this.usedToday);
+    },
+    
+    showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.className = 'toast ' + (isError ? 'error' : isError === false && msg.includes('success') ? 'success' : '');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    },
+    
+    showModal(title, message, isSuccess = true) {
+      this.modalTitle = title;
+      this.modalMessage = message;
+      this.modalIcon = isSuccess ? '✅' : '❌';
+      document.getElementById('resultModal').classList.add('show');
+    },
+    
+    closeModal() {
+      document.getElementById('resultModal').classList.remove('show');
+    },
+    
+    execute() {
+      const target = document.getElementById('targetNumber').value.trim();
+      
+      if (!target) {
+        this.showToast('Please enter target number!', true);
+        return;
+      }
+      
+      if (!/^[0-9]{10,15}$/.test(target.replace(/\D/g, ''))) {
+        this.showToast('Invalid number format! Use: 628123456789', true);
+        return;
+      }
+      
+      if (!this.selectedMode) {
+        this.showToast('Please select attack mode!', true);
+        return;
+      }
+      
+      if (this.remaining <= 0 && this.role !== 'owner' && this.role !== 'admin') {
+        this.showToast('Daily limit reached!', true);
+        return;
+      }
+      
+      this.executing = true;
+      
+      setTimeout(() => {
+        this.incrementUsage();
+        this.startCooldown();
+        
+        const modeName = this.selectedMode === 'iosfc' ? 'iOS Force Close' :
+                        this.selectedMode === 'androdelay' ? 'Android Delay Attack' : 'Android Invisible Attack';
+        
+        this.showToast('✅ Attack executed successfully!', false);
+        this.showModal('Success', `Target: ${target}\nMode: ${modeName}\nTime: ${new Date().toLocaleString('id-ID')}`, true);
+        
+        this.executing = false;
+      }, 1500);
+    },
+    
+    goToUserList() {
+      window.location.href = 'userlist.html';
+    },
+    
+    logout() {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => u.username === this.username);
+      if (user) user.isLoggedIn = false;
+      localStorage.setItem('users', JSON.stringify(users));
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = 'login.html';
+    }
+  }
+}
+</script>
+</body>
+</html>

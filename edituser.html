@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id" x-data="app()" :class="{'dark':dark}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Syonx - Edit User</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
+          colors: { 'primary': '#3b82f6' }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{font-family:'Inter',sans-serif}
+    .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;background:#3b82f6;color:white;z-index:1000;transform:translateX(400px);transition:transform .3s}
+    .toast.show{transform:translateX(0)}
+    .toast.error{background:#ef4444}
+    [x-cloak]{display:none!important}
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="w-full max-w-lg mx-auto px-6 py-12">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8">
+    <h1 class="font-display font-bold text-2xl mb-6">✏️ Edit User</h1>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-2">Username</label>
+        <input type="text" x-model="username" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-2">Password</label>
+        <input type="text" x-model="password" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-2">Extend (days)</label>
+        <input type="number" x-model="extend" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none">
+      </div>
+      
+      <div x-show="canChangeRole">
+        <label class="block text-sm font-medium mb-2">Role</label>
+        <select x-model="role" class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:outline-none">
+          <option value="user">User</option>
+          <option value="reseller" x-show="canCreateReseller">Reseller</option>
+          <option value="admin" x-show="canCreateAdmin">Admin</option>
+          <option value="owner" x-show="canCreateOwner">Owner</option>
+        </select>
+      </div>
+      
+      <div class="flex gap-3 pt-4">
+        <button @click="save" class="flex-1 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition">Save Changes</button>
+        <a href="userlist.html" class="flex-1 py-3 text-center border border-gray-300 dark:border-gray-700 rounded-xl hover:border-primary transition">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"><span id="toastMsg"></span></div>
+
+<script>
+function app() {
+  return {
+    dark: false,
+    oldUsername: '',
+    username: '',
+    password: '',
+    extend: 0,
+    role: 'user',
+    
+    currentUserRole: '',
+    
+    init() {
+      this.dark = localStorage.getItem('theme') === 'dark';
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      this.oldUsername = urlParams.get('username');
+      
+      if (!this.oldUsername) {
+        window.location.href = 'userlist.html';
+        return;
+      }
+      
+      const current = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      this.currentUserRole = current.role;
+      
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => u.username === this.oldUsername);
+      
+      if (!user) {
+        window.location.href = 'userlist.html';
+        return;
+      }
+      
+      this.username = user.username;
+      this.password = user.password;
+      this.role = user.role;
+    },
+    
+    get canChangeRole() {
+      return this.currentUserRole === 'owner' || 
+             (this.currentUserRole === 'admin' && this.role !== 'owner');
+    },
+    
+    get canCreateReseller() {
+      return this.currentUserRole === 'owner' || this.currentUserRole === 'admin';
+    },
+    
+    get canCreateAdmin() {
+      return this.currentUserRole === 'owner';
+    },
+    
+    get canCreateOwner() {
+      return this.currentUserRole === 'owner';
+    },
+    
+    showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.className = 'toast ' + (isError ? 'error' : '');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    },
+    
+    save() {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const index = users.findIndex(u => u.username === this.oldUsername);
+      
+      if (index === -1) {
+        this.showToast('User not found!', true);
+        return;
+      }
+      
+      users[index].username = this.username;
+      users[index].password = this.password;
+      
+      if (this.extend > 0) {
+        const now = Date.now();
+        const currentExp = users[index].expired > now ? users[index].expired : now;
+        users[index].expired = currentExp + (this.extend * 86400000);
+      }
+      
+      if (this.currentUserRole === 'owner') {
+        users[index].role = this.role;
+      } else if (this.currentUserRole === 'admin' && this.role !== 'owner') {
+        users[index].role = this.role;
+      }
+      
+      localStorage.setItem('users', JSON.stringify(users));
+      this.showToast('User updated successfully!');
+      setTimeout(() => window.location.href = 'userlist.html', 1000);
+    }
+  }
+}
+</script>
+</body>
+</html>

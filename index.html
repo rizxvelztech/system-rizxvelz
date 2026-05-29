@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id" x-data="app()" :class="{'dark':dark}" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Syonx - Dashboard</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { 'display': ['Poppins', 'sans-serif'], 'body': ['Inter', 'sans-serif'] },
+          colors: { 'primary': '#3b82f6', 'primary-dark': '#2563eb' }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
+    h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif}
+    
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:99px}
+    
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
+    .reveal.in{opacity:1;transform:none}
+    .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+    
+    .nl{position:relative}
+    .nl::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:#3b82f6;transition:width .25s ease}
+    .nl:hover::after,.nl.active::after{width:100%}
+    .nl.active{color:#3b82f6;font-weight:500}
+    
+    .card-hover{transition:transform .25s,box-shadow .25s}
+    .card-hover:hover{transform:translateY(-5px);box-shadow:0 20px 25px -12px rgba(0,0,0,.1)}
+    
+    .btn-primary{background:#3b82f6;color:white;transition:all .2s}
+    .btn-primary:hover{background:#2563eb;transform:translateY(-2px)}
+    .btn-outline{border:1.5px solid #e5e7eb;transition:all .2s}
+    .dark .btn-outline{border-color:#374151}
+    .btn-outline:hover{border-color:#3b82f6;background:#3b82f6/10}
+    
+    [x-cloak]{display:none!important}
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+
+<!-- Navigation -->
+<header class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+  :class="scrolled ? 'bg-white/90 dark:bg-gray-950/90 backdrop-blur-md shadow-sm' : ''">
+  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#" class="font-display font-bold text-xl tracking-tight">
+      <span class="text-gray-900 dark:text-white">Syonx</span><span class="text-primary">Light</span>
+    </a>
+    
+    <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <li><a href="#plans" class="nl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" :class="section==='plans'?'active':''">Plans</a></li>
+      <li><a href="#about" class="nl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" :class="section==='about'?'active':''">About</a></li>
+      <li><a href="#contact" class="nl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" :class="section==='contact'?'active':''">Contact</a></li>
+      <li><a href="login.html" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary-dark transition">Login</a></li>
+    </ul>
+    
+    <div class="flex items-center gap-3">
+      <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 transition">
+        <svg x-show="!dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg x-show="dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      </button>
+      <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800">
+        <svg x-show="!mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg x-show="mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div x-show="mobileMenu" x-cloak x-transition class="md:hidden bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-900">
+    <ul class="flex flex-col px-6 py-5 gap-4">
+      <li><a href="#plans" @click="mobileMenu=false" class="block text-gray-700 dark:text-gray-300 hover:text-primary">Plans</a></li>
+      <li><a href="#about" @click="mobileMenu=false" class="block text-gray-700 dark:text-gray-300 hover:text-primary">About</a></li>
+      <li><a href="#contact" @click="mobileMenu=false" class="block text-gray-700 dark:text-gray-300 hover:text-primary">Contact</a></li>
+      <li><a href="login.html" @click="mobileMenu=false" class="inline-block px-4 py-2 bg-primary text-white rounded-lg text-center">Login</a></li>
+    </ul>
+  </div>
+</header>
+
+<main class="pt-20">
+  <!-- Hero Section -->
+  <section id="hero" class="relative min-h-[80vh] flex items-center">
+    <div class="absolute top-1/4 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="max-w-6xl mx-auto px-6 py-16 w-full">
+      <div class="text-center">
+        <p class="reveal text-primary font-semibold text-sm mb-4">Welcome to</p>
+        <h1 class="reveal d1 font-display font-bold text-5xl md:text-6xl lg:text-7xl mb-6">
+          Syonx<span class="text-primary">Light</span>
+        </h1>
+        <p class="reveal d2 text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto mb-10">
+          Advanced System API Platform — Explore, Test, and Analyze API endpoints with powerful tools.
+        </p>
+        <div class="reveal d3 flex flex-wrap gap-4 justify-center">
+          <a href="login.html" class="btn-primary px-8 py-3.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all">Get Started →</a>
+          <a href="#plans" class="btn-outline px-8 py-3.5 rounded-xl font-medium">View Plans</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plans Section -->
+  <section id="plans" class="py-20 bg-gray-100/50 dark:bg-gray-900/30">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14">
+        <p class="reveal text-primary font-semibold text-sm mb-3">Membership</p>
+        <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl">Choose Your Plan</h2>
+        <p class="reveal d2 text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Select the perfect plan for your needs</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Basic Plan -->
+        <div class="reveal d1 card-hover bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-800">
+          <div class="text-center">
+            <h3 class="font-display font-bold text-2xl mb-2">Basic</h3>
+            <div class="text-4xl font-bold text-primary mb-4">Rp30K</div>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Lifetime access</p>
+            <ul class="space-y-3 text-left mb-8">
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>10 Requests/Day</li>
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Standard Support</li>
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Web Panel Access</li>
+            </ul>
+            <a href="https://t.me/rizxvelzexct?text=Buy%20Basic%20Plan" target="_blank" class="btn-outline w-full inline-block text-center py-3 rounded-xl font-medium">Select Plan</a>
+          </div>
+        </div>
+        
+        <!-- Reseller Plan -->
+        <div class="reveal d2 card-hover bg-white dark:bg-gray-900 rounded-2xl p-8 border-2 border-primary shadow-lg">
+          <div class="text-center">
+            <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-3">Popular</span>
+            <h3 class="font-display font-bold text-2xl mb-2">Reseller</h3>
+            <div class="text-4xl font-bold text-primary mb-4">Rp90K</div>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Lifetime access</p>
+            <ul class="space-y-3 text-left mb-8">
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>25 Requests/Day</li>
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Priority Support</li>
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Create Basic Users</li>
+            </ul>
+            <a href="https://t.me/rizxvelzexct?text=Buy%20Reseller%20Plan" target="_blank" class="btn-primary w-full inline-block text-center py-3 rounded-xl font-medium">Select Plan</a>
+          </div>
+        </div>
+        
+        <!-- Admin Plan -->
+        <div class="reveal d3 card-hover bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-800">
+          <div class="text-center">
+            <h3 class="font-display font-bold text-2xl mb-2">Admin</h3>
+            <div class="text-4xl font-bold text-primary mb-4">Rp130K</div>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Lifetime access</p>
+            <ul class="space-y-3 text-left mb-8">
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Unlimited Requests</li>
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>24/7 Support</li>
+              <li class="flex items-center gap-3 text-sm"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Role Management</li>
+            </ul>
+            <a href="https://t.me/rizxvelzexct?text=Buy%20Admin%20Plan" target="_blank" class="btn-outline w-full inline-block text-center py-3 rounded-xl font-medium">Select Plan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="reveal">
+          <p class="text-primary font-semibold text-sm mb-3">About Us</p>
+          <h2 class="font-display font-bold text-4xl md:text-5xl mb-6">Why Choose Syonx?</h2>
+          <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+            Syonx is a sophisticated platform for exploring and testing API systems. Built with modern technology to provide the best experience for security researchers and developers.
+          </p>
+          <ul class="space-y-3">
+            <li class="flex items-center gap-3"><div class="w-1 h-1 bg-primary rounded-full"></div><span class="text-sm">Advanced Bug Detection Algorithms</span></li>
+            <li class="flex items-center gap-3"><div class="w-1 h-1 bg-primary rounded-full"></div><span class="text-sm">Real-time Vulnerability Scanning</span></li>
+            <li class="flex items-center gap-3"><div class="w-1 h-1 bg-primary rounded-full"></div><span class="text-sm">High-performance API Testing</span></li>
+          </ul>
+        </div>
+        <div class="reveal d2 grid grid-cols-2 gap-4">
+          <div class="bg-primary/5 rounded-2xl p-6 text-center">
+            <div class="text-3xl font-bold text-primary">24/7</div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Support</p>
+          </div>
+          <div class="bg-primary/5 rounded-2xl p-6 text-center">
+            <div class="text-3xl font-bold text-primary">100+</div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Active Users</p>
+          </div>
+          <div class="bg-primary/5 rounded-2xl p-6 text-center">
+            <div class="text-3xl font-bold text-primary">1000+</div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Requests Daily</p>
+          </div>
+          <div class="bg-primary/5 rounded-2xl p-6 text-center">
+            <div class="text-3xl font-bold text-primary">99%</div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Uptime</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-20 bg-gray-100/50 dark:bg-gray-900/30">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14">
+        <p class="reveal text-primary font-semibold text-sm mb-3">Get in Touch</p>
+        <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl">Contact Us</h2>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div class="reveal d2 space-y-6">
+          <div class="flex items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+            <div><h3 class="font-semibold">Email</h3><a href="mailto:support@syonx.com" class="text-sm text-gray-500 dark:text-gray-400">support@syonx.com</a></div>
+          </div>
+          <div class="flex items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
+            <div><h3 class="font-semibold">Telegram</h3><a href="https://t.me/rizxvelzexct" target="_blank" class="text-sm text-gray-500 dark:text-gray-400">@rizxvelzexct</a></div>
+          </div>
+        </div>
+        
+        <div class="reveal d3">
+          <form action="https://formspree.io/f/your-form-id" method="POST" class="space-y-4">
+            <input type="text" name="name" placeholder="Your Name" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:border-primary focus:outline-none transition">
+            <input type="email" name="email" placeholder="Your Email" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:border-primary focus:outline-none transition">
+            <textarea name="message" rows="4" placeholder="Your Message" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:border-primary focus:outline-none transition"></textarea>
+            <button type="submit" class="btn-primary w-full py-3 rounded-xl font-medium">Send Message →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-gray-200 dark:border-gray-800 py-8">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <p class="text-sm text-gray-400">© 2024 SyonxLight. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+function app() {
+  return {
+    dark: false,
+    mobileMenu: false,
+    scrolled: false,
+    section: 'hero',
+    
+    init() {
+      this.dark = localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+      
+      window.addEventListener('scroll', () => {
+        this.scrolled = window.scrollY > 20;
+        this.updateSection();
+      });
+      
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    },
+    
+    updateSection() {
+      const sections = ['plans', 'about', 'contact'];
+      for (const sec of sections) {
+        const el = document.getElementById(sec);
+        if (el && window.scrollY >= el.offsetTop - 150) {
+          this.section = sec;
+          return;
+        }
+      }
+      this.section = 'hero';
+    }
+  }
+}
+</script>
+</body>
+</html>
